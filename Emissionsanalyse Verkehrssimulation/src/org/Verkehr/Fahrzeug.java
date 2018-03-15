@@ -70,10 +70,13 @@ public abstract class Fahrzeug {
 	public void update() {
 		//Neue Position
 		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
+		
+		//TODO: Emissionsdaten sammeln und speichern
+		
+		
 		//Neue Geschwindigkeit
 		geschwindigkeit = geschwindigkeit + (beschleunigung * Physics.DELTA_TIME);
 		
-		//TODO: Emissionsdaten sammeln und speichern
 		
 		//Nach der Zeiteinheit wird die Beschleunigung zurückgesetzt
 		beschleunigung = 0;

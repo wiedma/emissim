@@ -49,5 +49,28 @@ public abstract class Physics {
 		
 		return lamda * masse * beschleunigung;
 	}
+	
+	//Berechnet normalverteilte Zufallszahlen nach der Polar-Methode
+	public static double normalverteilung(double erwartungswert, double standartabweichung) {
+		
+		double u, v, q, p;
+		do {
+			//Erzeuge zwei linearverteilte Zufallszahlen u und v
+			u = 2 * Math.random() - 1;
+			v = 2 * Math.random() - 1;
+			//Berechne q = u² + v²
+			q = u * u + v * v;
+			//Wenn q nicht element aus ]0;1[, wiederhole
+		} while(q <= 0 || q >= 1);
+		
+		//Berechne den Faktor p
+		p = Math.sqrt((-2 * Math.log(q))/ q);
+		
+		//Erzeuge eine unabhängige standartnormalverteilte Zufallszahl
+		double x = u * p;
+		
+		//Lineare Transformation zu beliebig normalverteilten Zufallszahlen
+		return Math.sqrt(standartabweichung) * x + erwartungswert;
+	}
 
 }

@@ -11,9 +11,6 @@ public class PKW extends Fahrzeug {
 	@Override
 	protected double[] generiereFahrzeugSpecs() {
 		
-		//Fahrzeugspezifikationen
-		double[] specs = new double[7];
-		
 		//Längenverteilung nach [ER07]
 		double laenge = Math.random() + 4.0;
 		
@@ -26,7 +23,24 @@ public class PKW extends Fahrzeug {
 		//Massenverteilung nach [FO13], Standartabweichung nach eigener Abschätzung
 		double masse = Physics.normalverteilung(1484, 100);
 		
-		return null;
+		//Verteilung der Kraftstoffarten nach [KR18]
+		double kraftstoff = Math.random() * 100; //Zufallszahl
+		
+		if(kraftstoff > 66.50) {
+			kraftstoff = 1; //Diesel etwa 33.5% aller PKW
+		}
+		else {
+			kraftstoff = 0; //Benzin etwa 66.55% aller PKW
+		}
+		
+		//Rollreibungszahl nach [BO98]
+		double rollreibung = ((Math.random() * 2) + 1)/100;
+		
+		//Luftreibungszahl nach [BO98]
+		double luftreibung = (Math.random() + 3)/10;
+		
+		
+		return new double [] {laenge, breite, hoehe, masse, kraftstoff, rollreibung, luftreibung};
 	}
 
 }

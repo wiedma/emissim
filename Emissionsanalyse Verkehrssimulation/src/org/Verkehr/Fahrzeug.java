@@ -1,4 +1,6 @@
 package org.Verkehr;
+import java.io.File;
+
 import org.PhysicEngine.*;
 
 public abstract class Fahrzeug {
@@ -34,6 +36,9 @@ public abstract class Fahrzeug {
 	//Momentane Beschleunigung
 	private double beschleunigung;
 	
+	//CO2-Sensorobjekt des Fahrzeugs
+	private CO2Sensor co2sensor;
+	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
 		
@@ -66,15 +71,39 @@ public abstract class Fahrzeug {
 		gang = 0;
 		beschleunigung = 0;
 		
+		//CO2-Sensorobjekt
+		//TODO In Excel-Tabelle abändern
+		co2sensor = new CO2Sensor(new File("Emissionsdaten\\Kohlenstoffdioxid.txt"));
+		
 	}
 	
 	//Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen
 	public void update() {
+		//Alte Position
+		double posAlt = pos;
+		
 		//Neue Position
 		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
 		
-		//TODO: Emissionsdaten sammeln und speichern
+		//Benötigte Energie
 		
+		//Gefahrene Strecke
+		double s = pos - posAlt;
+		
+		//Rollreibungskraft
+		double fr = Physics.rollreibung(rollreibungszahl, masse);
+		
+		//Luftreibung
+		double fl = Physics.luftreibung(luftreibungszahl, frontflaeche, geschwindigkeit);
+		
+		//Beschleunigungswiderstand
+		double fb = Physics.beschleunigungswiderstand(masse, beschleunigung, gang);
+		
+		//Energie = Kraft * Weg (* 1/wirkungsgrad)
+		double energie = s * (fr + fl + fb) * (1/wirkungsgrad);
+		
+		//Emissionsdaten sammeln und speichern
+		co2sensor.sammleDaten(kraftstoff.verbrenne(energie));
 		
 		//Neue Geschwindigkeit
 		geschwindigkeit = geschwindigkeit + (beschleunigung * Physics.DELTA_TIME);
@@ -106,4 +135,8 @@ public abstract class Fahrzeug {
 	}
 	
 	protected abstract double[] generiereFahrzeugSpecs();
+	
+	public double getWirkungsgrad() {
+		return wirkungsgrad;
+	}
 }

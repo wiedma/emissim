@@ -41,7 +41,7 @@ public enum Kraftstoffe {
 	//Generiere einen normalverteilten Wirkungsgrad für einen Motor dieses Kraftstoffs
 	//Erwartungswerte nach [BO99], Standardabweichung nach eigener Abschätzung
 	public double generiereWirkungsgrad() {
-		return Physics.normalverteilung(wirkungErwartung, 0.4);
+		return (1.0/100.0) * Physics.normalverteilung(100*wirkungErwartung, 3);
 	}
 
 }

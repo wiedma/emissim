@@ -48,10 +48,12 @@ public abstract class Fahrzeug {
 		
 		//Verwendeter Kraftstoff
 		switch((int) specs[4]) {
-		//TODO Standartabweichung auf Wirkungsgrad anwenden
-		case 0: kraftstoff = Kraftstoffe.BENZIN; wirkungsgrad = 0.25; break;
-		case 1: kraftstoff = Kraftstoffe.DIESEL; wirkungsgrad = 0.35; break;
-		default: kraftstoff = Kraftstoffe.BENZIN; wirkungsgrad = 0.25; break;
+		case 0: kraftstoff = Kraftstoffe.BENZIN;
+				wirkungsgrad = Kraftstoffe.BENZIN.generiereWirkungsgrad(); break;
+		case 1: kraftstoff = Kraftstoffe.DIESEL;
+				wirkungsgrad = Kraftstoffe.DIESEL.generiereWirkungsgrad(); break;
+		default: kraftstoff = Kraftstoffe.BENZIN;
+				wirkungsgrad = Kraftstoffe.BENZIN.generiereWirkungsgrad(); break;
 		}
 		
 		//Reibungskonstanten

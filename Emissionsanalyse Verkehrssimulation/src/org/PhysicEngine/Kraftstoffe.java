@@ -2,7 +2,7 @@ package org.PhysicEngine;
 
 public enum Kraftstoffe {
 	
-	DIESEL(43.35,0.840,2.630), BENZIN(43.9,0.750,2.330);
+	DIESEL(43.35,0.840,2.630, 0.35), BENZIN(43.9,0.750,2.330, 0.25);
 	
 	//Heizwert des Kraftstoffes in MJ/kg
 	//Werte aus [HA08]
@@ -17,10 +17,14 @@ public enum Kraftstoffe {
 	//Werte aus [BA16]
 	private double co2Emission;
 	
-	private Kraftstoffe(double heizwert, double dichte, double co2Emission) {
+	//Erwartungswert der Normalverteilung des Motorwirkungsgrad
+	private double wirkungErwartung;
+	
+	private Kraftstoffe(double heizwert, double dichte, double co2Emission, double wirkungErwartung) {
 		this.heizwert = heizwert;
 		this.dichte = dichte;
 		this.co2Emission = co2Emission;
+		this.wirkungErwartung = wirkungErwartung;
 	}
 	
 	//Berechne die Emissionen, die bei der Verbrennung bis zu einer gewissen Energie entstehen
@@ -32,6 +36,12 @@ public enum Kraftstoffe {
 //		return co2EmissionsMasse;
 		
 		return ((energie/heizwert)/dichte) * co2Emission;
+	}
+	
+	//Generiere einen normalverteilten Wirkungsgrad für einen Motor dieses Kraftstoffs
+	//Erwartungswerte nach [BO99], Standardabweichung nach eigener Abschätzung
+	public double generiereWirkungsgrad() {
+		return Physics.normalverteilung(wirkungErwartung, 0.4);
 	}
 
 }

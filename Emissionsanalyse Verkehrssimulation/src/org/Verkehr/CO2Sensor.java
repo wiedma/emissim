@@ -1,7 +1,7 @@
 package org.Verkehr;
 
 import java.io.File;
-import java.io.IOException;
+//import java.io.IOException;
 
 public class CO2Sensor implements Sensor<Double>{
 	
@@ -13,14 +13,15 @@ public class CO2Sensor implements Sensor<Double>{
 	
 	public CO2Sensor(File targetFile) {
 		this.targetFile = targetFile;
-		if(!targetFile.exists()) {
-			try {
-				targetFile.createNewFile();
-			}catch(IOException e) {
-				e.printStackTrace();
-				System.out.println("Die Ausgabedatei kann nicht erzeugt werden");
-			}
-		}
+		//TODO Datei erzeugen
+//		if(!targetFile.exists()) {
+//			try {
+//				targetFile.createNewFile();
+//			}catch(IOException e) {
+//				e.printStackTrace();
+//				System.out.println("Die Ausgabedatei kann nicht erzeugt werden");
+//			}
+//		}
 	}
 
 	@Override

@@ -23,7 +23,7 @@ public class PKW extends Fahrzeug {
 		//Massenverteilung nach [FO13], Standartabweichung nach eigener Abschätzung
 		double masse = Physics.normalverteilung(1484, 100);
 		
-		//Verteilung der Kraftstoffarten nach [KR18]
+		//Verteilung der Kraftstoffarten nach [KR17]
 		double kraftstoff = Math.random() * 100; //Zufallszahl
 		
 		if(kraftstoff > 66.50) {

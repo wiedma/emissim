@@ -2,42 +2,45 @@ package org.Verkehr;
 import java.io.File;
 
 import org.PhysicEngine.*;
+import org.Streckennetz.Fahrspur;
 
 public abstract class Fahrzeug {
 	
 	//Räumliche Dimensionen des Fahrzeugs in m bzw. m²
-	private double laenge;
-	private double breite;
-	private double hoehe;
-	private double frontflaeche;
+	protected double laenge;
+	protected double breite;
+	protected double hoehe;
+	protected double frontflaeche;
 	
 	//Masse des Fahrzeugs in kg
-	private double masse;
+	protected double masse;
 	
 	//Verwendeter Kraftstoff
-	private Kraftstoffe kraftstoff;
+	protected Kraftstoffe kraftstoff;
 	
 	//Wirkungsgrad des Motors
-	private double wirkungsgrad;
+	protected double wirkungsgrad;
 	
 	//Kennzahlen des Fahrzeugs ohne Einheit
-	private double rollreibungszahl;
-	private double luftreibungszahl;
+	protected double rollreibungszahl;
+	protected double luftreibungszahl;
 	
 	//Position als Koordinate im eindimensionalen System
-	private double pos;
+	protected double pos;
+	//Die Fahrspur auf der sich das Fahrzeug befindet
+	protected Fahrspur spur;
 	
 	//Momentane Geschwindigkeit
-	private double geschwindigkeit;
+	protected double geschwindigkeit;
 	
 	//Momentan gewählter Gang
-	private int gang;
+	protected int gang;
 	
 	//Momentane Beschleunigung
-	private double beschleunigung;
+	protected double beschleunigung;
 	
 	//CO2-Sensorobjekt des Fahrzeugs
-	private CO2Sensor co2sensor;
+	protected CO2Sensor co2sensor;
 	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
@@ -138,5 +141,21 @@ public abstract class Fahrzeug {
 	
 	public double getWirkungsgrad() {
 		return wirkungsgrad;
+	}
+	
+	public double posGeben() {
+		return pos;
+	}
+	
+	public void posSetzen(double pos) {
+		this.pos = pos;
+	}
+	
+	public Fahrspur spurGeben() {
+		return this.spur;
+	}
+	
+	public void spurSetzen(Fahrspur spur) {
+		this.spur = spur;
 	}
 }

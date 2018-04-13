@@ -59,6 +59,10 @@ public abstract class Fahrspur {
 		return this.naechsteFahrspur;
 	}
 	
+	public double laengeGeben() {
+		return laenge;
+	}
+	
 //-------------------------------------------------------------------------------------------------
 	
 	//Fahrzeuge der Spur hinzufügen und diese wieder entfernen
@@ -95,6 +99,15 @@ public abstract class Fahrspur {
 		//Referenzen der Spuren neu setzen
 		naechsteFahrspur.fahrzeugHinzufuegen(fahrzeug);
 		this.fahrzeugEntfernen(fahrzeug);
+	}
+	
+	//Prüft, ob diese Fahrspur ein "Nachbar" (im Mehrspurbereich) des Argumentes ist
+	public boolean istBenachbart(Fahrspur spur){
+		try{
+			return mehrspurbereich.enthaeltFahrspur(spur);
+		} catch(NullPointerException e){
+			return false;
+		}
 	}
 	
 	

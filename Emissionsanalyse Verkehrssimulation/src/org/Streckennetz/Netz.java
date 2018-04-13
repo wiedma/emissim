@@ -18,12 +18,16 @@ public class Netz {
 		this.fahrzeuge = new ArrayList<Fahrzeug>();
 	}
 	
-	public void addFahrzeug(Fahrzeug fahr) {
-		this.fahrzeuge.add(fahr);
+	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
+		this.fahrzeuge.add(fahrzeug);
 	}
 	
-	public void removeFahrzeug(Fahrzeug fahr) {
-		this.fahrzeuge.remove(fahr);
+	public void fahrzeugEntfernen(Fahrzeug fahrzeug) {
+		this.fahrzeuge.remove(fahrzeug);
+	}
+	
+	public Fahrspur[] spurenGeben(){
+		return spuren;
 	}
 	
 	public void zeitschritt() {

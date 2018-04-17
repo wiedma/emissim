@@ -14,7 +14,7 @@ public class Netz {
 	
 	public Netz(Fahrspur[] spuren) {
 		this.spuren = spuren;
-		strecken = Routenplaner.planeRouten(spuren);
+		strecken = Routenplaner.planeRouten(this);
 		this.fahrzeuge = new ArrayList<Fahrzeug>();
 	}
 	

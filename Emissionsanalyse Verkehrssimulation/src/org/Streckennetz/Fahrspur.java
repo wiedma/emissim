@@ -1,8 +1,9 @@
 package org.Streckennetz;
+import org.Graphen.*;
 import org.Verkehr.Fahrzeug;
 import java.util.ArrayList;
 
-public abstract class Fahrspur {
+public abstract class Fahrspur implements Datenelement {
 	
 	//Gibt an, ob Fahrzeuge auf dieser Spur überholen dürfen
 	protected boolean ueberholverbot;
@@ -27,6 +28,12 @@ public abstract class Fahrspur {
 	
 	//Die Fahrzeuge auf dieser Fahrspur
 	protected ArrayList<Fahrzeug> fahrzeuge;
+	
+	//Speichert, ob diese Fahrspur bereits in den Graphen zur Routenplanung eingetragen ist
+	protected boolean eingetragen;
+	
+	//Der Knoten der diese Fahrspur im Graphen repräsentiert
+	protected Knoten knoten;
 	
 	//Konstruktor
 	public Fahrspur(double laenge, double breite, double maxGeschwindigkeit, boolean ueberholverbot) {
@@ -110,6 +117,18 @@ public abstract class Fahrspur {
 		}
 	}
 	
+	//Markiert diese Fahrspur als in den Graphen eingetragen
+	public void eintragen() {
+		eingetragen = true;
+	}
 	
-
+	//Prüft, ob diese Fahrspur bereits in den Graphen eingetragen ist
+	public boolean istEingetragen() {
+		return eingetragen;
+	}
+	
+	//Gibt den Knoten, der diese Fahrspur im Graphen repräsentiert
+	public Knoten knotenGeben() {
+		return this.knoten;
+	}
 }

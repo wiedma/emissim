@@ -19,5 +19,9 @@ public class Kante {
 	public double gewichtGeben(){
 		return gewicht;
 	}
+	
+	public Knoten zielGeben() {
+		return ziel;
+	}
 
 }

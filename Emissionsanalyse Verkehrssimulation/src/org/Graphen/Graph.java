@@ -13,7 +13,6 @@ public class Graph {
 		knoten.add(neu);
 	}
 	
-	//TODO Dijkstra-Algorithmus implementieren
 	//Führt den Dijkstra-Algorithmus durch um den kürzesten Weg von start nach ziel zu suchen
 	public Datenelement[] dijkstra(Knoten start, Knoten ziel){
 		//Initialisierung der Prioritätswarteschlange
@@ -28,9 +27,34 @@ public class Graph {
 			}
 			//Einfügen jedes Knoten in die Prioritätswarteschlange
 			pq.add(knoten);
+			
 		}
-		return null;
+		
+		//Solange die Prioritätswarteschlange nicht leer ist
+		while(!pq.isEmpty()) {
+			//Entnehme den vordersten Knoten (mit geringstem Pfadgewicht) aus der Prioritätswarteschlange
+			Knoten zuBearbeiten = pq.poll();
+			for(Knoten aktualisiert : zuBearbeiten.dijkstra()) {
+				//Aktualisiere die Prioritätswarteschlange
+				pq.remove(aktualisiert);
+				pq.add(aktualisiert);
+			}
+		}
+		
+		//Verfolge den Pfad zurück bis zum Anfang
+		ArrayList<Datenelement> pfad = new ArrayList<Datenelement>();
+		Knoten pfadKnoten = ziel;
+		pfad.add(ziel.datenGeben());
+		while(!pfadKnoten.equals(start)) {
+			pfad.add(0, pfadKnoten.vorgaengerKnotenGeben().datenGeben());
+			pfadKnoten = pfadKnoten.vorgaengerKnotenGeben();
+		}
+		
+		return pfad.toArray(new Datenelement[0]);
 	}
 	
+	public ArrayList<Knoten> knotenGeben() {
+		return knoten;
+	}
 
 }

@@ -17,7 +17,6 @@ public class Mehrspurbereich {
 		return fahrspuren.contains(spur);
 	}
 	
-	//TODO fahrspurHinzufuegen() testen!
 	//Fügt diesem Mehrspurbereich eine weitere Fahrspur hinzu
 	//@param referenz Eine Fahrspur, die als Referenzpunkt innerhalb des Mehrspurbereichs dient um die Position festzustellen
 	//@param links Gibt an, ob neueSpur links oder rechts von referenz verbunden werden soll

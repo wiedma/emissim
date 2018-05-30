@@ -6,9 +6,36 @@ public class Strecke {
 	//Die Fahrspuren, die zu dieser Strecke gehören
 	private Fahrspur[] spuren;
 	
+	//Die Verkehrsstärke, die von der Quelle auf dieser Strecke angestrebt wird in Fz/h
+	private double verkehrsstaerke;
+	
 	public Strecke(Fahrspur[] spuren, Netz netz) {
 		this.spuren = spuren;
+		//Standartmäßige Verkehrsstärke einer Strecke nach Vorbild von [ER07] S.132
+		this.verkehrsstaerke = 10;
 	}
+	
+//Getter und Setter ---------------------------------------------------------------------------
+	
+	public void verkehrsstaerkeSetzen(double verkehrsstaerke) {
+		//Speichere die alte Verkehrsstärke
+		double alteVerkehrsstaerke = this.verkehrsstaerke;
+		//Setze die neue Verkehrsstärke
+		this.verkehrsstaerke = verkehrsstaerke;
+		//Ermittle die Veränderung
+		double aenderung = alteVerkehrsstaerke - this.verkehrsstaerke;
+		//Erneuere alle Verkehrsstärken in den Fahrspuren dieser Strecke
+		for(Fahrspur spur : spuren) {
+			spur.verkehrsstaerkeAendern(aenderung);
+		}
+		
+	}
+	
+	public double verkehrsstaerkeGeben() {
+		return verkehrsstaerke;
+	}
+	
+//---------------------------------------------------------------------------------------------
 	
 	//TODO entfernungBisSpurende() testen
 	//Gibt die Entfernung bis zum Ende des aktuellen Fahrstreifens zurück
@@ -52,5 +79,4 @@ public class Strecke {
 		
 		return entfernung;
 	}
-
 }

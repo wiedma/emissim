@@ -72,7 +72,7 @@ public class Routenplaner {
 		//Markiere diese Fahrspur als eingetragen
 		spur.eintragen();
 		
-		//TODO Tiefensuche in das Datenelement kapseln um Quellen und Senken besser berücksichtigen zu können
+		//FIXME Bugfix!: Tiefensuche in das Datenelement kapseln um Quellen und Senken besser berücksichtigen zu können
 		
 		//Linker Nachbar
 		if(spur.linkeFahrspur != null) {

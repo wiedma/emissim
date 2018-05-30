@@ -29,6 +29,12 @@ public abstract class Fahrspur implements Datenelement {
 	//Die Fahrzeuge auf dieser Fahrspur
 	protected ArrayList<Fahrzeug> fahrzeuge;
 	
+	/*Die Verkehrsstärke dieser Fahrspur berechnet sich als Summe der Verkehrsstärken aller
+	 * Strecken, die diese Fahrspur beinhalten. Zugewiesen wird dieser Wert nicht bei erstellung
+	 * der Fahrspur, sondern nach Generierung der Strecken. Der Wert soll noch während der
+	 * Laufzeit veränderbar sein*/
+	protected double verkehrsstaerke;
+	
 	//Speichert, ob diese Fahrspur bereits in den Graphen zur Routenplanung eingetragen ist
 	protected boolean eingetragen;
 	
@@ -70,9 +76,30 @@ public abstract class Fahrspur implements Datenelement {
 		return laenge;
 	}
 	
+	public boolean istEingetragen() {
+		return eingetragen;
+	}
+	
+	public Knoten knotenGeben() {
+		return this.knoten;
+	}
+	
+	public double verkehrsstaerkeGeben() {
+		return verkehrsstaerke;
+	}
+	
+	/*Ändert die Verkehrsstärke um den gegebenen Wert. Diese Methode wird von den Strecken
+	 * genutzt, um die Verkehrsstärken der Fahrspuren zu berechnen, ohne Zugriff auf die Verkehrs-
+	 * stärken der anderen Strecken zu besitzen.
+	 * Außerdem erlaubt dieser Ansatz eine leichtere Änderung der Verkehrsstärken in der Laufzeit*/
+	public void verkehrsstaerkeAendern(double aenderung) {
+		verkehrsstaerke = verkehrsstaerke += aenderung;
+	}
+	
 //-------------------------------------------------------------------------------------------------
 	
 	//Fahrzeuge der Spur hinzufügen und diese wieder entfernen
+	//TODO Prüfe, ob sich das Fahrzeug noch auf dieser Spur befindet
 	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
 		fahrzeuge.add(fahrzeug);
 	}
@@ -90,6 +117,15 @@ public abstract class Fahrspur implements Datenelement {
 		if(verbunden) {
 			//Setze den Vorgänger von f1s Nachfolger auf null
 			f1.naechsteFahrspur.vorherigeFahrspur = null;
+		}
+		
+		//Prüfe, ob f2 bereits verbunden ist
+		verbunden = f2.vorherigeFahrspur != null;
+		
+		//Wenn f2 bereits verbunden war
+		if(verbunden) {
+			//Setze den Nachfolger von f2s Vorgänger auf null
+			f2.vorherigeFahrspur.naechsteFahrspur = null;
 		}
 		
 		//Verbinde die beiden Spuren
@@ -122,13 +158,4 @@ public abstract class Fahrspur implements Datenelement {
 		eingetragen = true;
 	}
 	
-	//Prüft, ob diese Fahrspur bereits in den Graphen eingetragen ist
-	public boolean istEingetragen() {
-		return eingetragen;
-	}
-	
-	//Gibt den Knoten, der diese Fahrspur im Graphen repräsentiert
-	public Knoten knotenGeben() {
-		return this.knoten;
-	}
 }

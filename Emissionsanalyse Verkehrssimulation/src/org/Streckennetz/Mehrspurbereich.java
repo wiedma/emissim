@@ -18,7 +18,8 @@ public class Mehrspurbereich {
 	}
 	
 	//Fügt diesem Mehrspurbereich eine weitere Fahrspur hinzu
-	//@param referenz Eine Fahrspur, die als Referenzpunkt innerhalb des Mehrspurbereichs dient um die Position festzustellen
+	//@param referenz Eine Fahrspur, die als Referenzpunkt innerhalb des Mehrspurbereichs dient 
+	//		 um die Position festzustellen
 	//@param links Gibt an, ob neueSpur links oder rechts von referenz verbunden werden soll
 	public void fahrspurHinzufuegen(Fahrspur neueSpur, Fahrspur referenz, boolean links){
 		//Wenn links eingefügt werden soll
@@ -75,5 +76,18 @@ public class Mehrspurbereich {
 		spur.linkeFahrspur = null;
 		spur.rechteFahrspur = null;
 	}
+	
+//Getter und Setter ---------------------------------------------------------------------------
+	public int anzahlGeben() {
+		return fahrspuren.size();
+	}
+	
+	//Gibt die Fahrspur am gewünschten Index
+	//@param index Die rechteste Fahrspur hat den Index 0. Der Index steigt nach links.
+	public Fahrspur fahrspurGeben(int index) {
+		return fahrspuren.get(index);
+	}
+	
+//---------------------------------------------------------------------------------------------
 
 }

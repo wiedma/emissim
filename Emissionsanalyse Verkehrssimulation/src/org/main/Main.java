@@ -4,45 +4,40 @@ import org.Streckennetz.*;
 
 public class Main {
 
-//	public static void main(String[] args) {
-//		Quelle quelle1 = new Quelle();
-//		Quelle quelle2 = new Quelle();
-//		
-//		Gerade gerade1 = new Gerade(10, 2, 200, false);
-//		Gerade einfahrt = new Gerade(10, 2, 200, false);
-//		
-//		Gerade ausfahrt1 = new Gerade(100, 2, 200, false);
-//		Gerade ausfahrt2 = new Gerade(100, 2, 200, false);
-//		
-//		Senke senke1 = new Senke();
-//		Senke senke2 = new Senke();
-//		
-//		Fahrspur.verbinde(quelle1, gerade1);
-//		Fahrspur.verbinde(quelle2, einfahrt);
-//		
-//		Fahrspur.verbinde(gerade1, ausfahrt1);
-//		Fahrspur.verbinde(einfahrt, ausfahrt2);
-//		
-//		Mehrspurbereich mehr1 = new Mehrspurbereich(ausfahrt1);
-//		mehr1.fahrspurHinzufuegen(ausfahrt2, ausfahrt1, false);
-//		
-//		Fahrspur.verbinde(ausfahrt1, senke1);
-//		Fahrspur.verbinde(ausfahrt2, senke2);
-//		
-//		Fahrspur[] spuren = new Fahrspur[8];
-//		
-//		spuren[0] = gerade1;
-//		spuren[1] = einfahrt;
-//		spuren[2] = ausfahrt1;
-//		spuren[3] = ausfahrt2;
-//		spuren[4] = quelle1;
-//		spuren[5] = quelle2;
-//		spuren[6] = senke1;
-//		spuren[7] = senke2;
-//		
-//		Netz netz = new Netz(spuren);
-//		
-//		Routenplaner.planeRouten(netz);
-//	}
+	public static void main(String[] args) {
+		
+		Gerade gerade1 = new Gerade(100, 2, 120, false);
+		Gerade gerade2 = new Gerade(100, 2, 120, false);
+		Gerade ausfahrt = new Gerade(10, 2, 100, false);
+		Gerade weiter = new Gerade (100, 2, 120, false);
+		
+		Fahrspur.verbinde(gerade1, ausfahrt);
+		Fahrspur.verbinde(gerade2, weiter);
+		
+		Mehrspurbereich autobahn = new Mehrspurbereich(gerade1);
+		autobahn.fahrspurHinzufuegen(gerade2, gerade1, true);
+		
+		Quelle autobahnBeginn = new Quelle(autobahn, 0.1);
+		
+		Senke ausfahrtSenke = new Senke();
+		Senke autobahnEnde = new Senke();
+		
+		Fahrspur.verbinde(ausfahrt, ausfahrtSenke);
+		Fahrspur.verbinde(weiter, autobahnEnde);
+		
+		Fahrspur[] spuren = new Fahrspur[7];
+		
+		spuren[0] = gerade1;
+		spuren[1] = gerade2;
+		spuren[2] = weiter;
+		spuren[3] = ausfahrt;
+		spuren[4] = autobahnBeginn;
+		spuren[5] = autobahnEnde;
+		spuren[6] = ausfahrtSenke;
+		
+		Netz netz = new Netz(spuren);
+		
+		Routenplaner.planeRouten(netz);
+	}
 
 }

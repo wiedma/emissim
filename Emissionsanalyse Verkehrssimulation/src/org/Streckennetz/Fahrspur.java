@@ -99,7 +99,7 @@ public abstract class Fahrspur implements Datenelement {
 //-------------------------------------------------------------------------------------------------
 	
 	//Fahrzeuge der Spur hinzufügen und diese wieder entfernen
-	//TODO Prüfe, ob sich das Fahrzeug noch auf dieser Spur befindet
+	//FIXME Prüfe, ob sich das Fahrzeug noch auf dieser Spur befindet
 	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
 		fahrzeuge.add(fahrzeug);
 	}
@@ -119,13 +119,16 @@ public abstract class Fahrspur implements Datenelement {
 			f1.naechsteFahrspur.vorherigeFahrspur = null;
 		}
 		
-		//Prüfe, ob f2 bereits verbunden ist
-		verbunden = f2.vorherigeFahrspur != null;
-		
-		//Wenn f2 bereits verbunden war
-		if(verbunden) {
-			//Setze den Nachfolger von f2s Vorgänger auf null
-			f2.vorherigeFahrspur.naechsteFahrspur = null;
+		//Wenn f2 keine Senke war
+		if(!(f2 instanceof Senke)) {
+			//Prüfe, ob f2 bereits verbunden ist
+			verbunden = f2.vorherigeFahrspur != null;
+			
+			//Wenn f2 bereits verbunden war
+			if(verbunden) {
+				//Setze den Nachfolger von f2s Vorgänger auf null
+				f2.vorherigeFahrspur.naechsteFahrspur = null;
+			}
 		}
 		
 		//Verbinde die beiden Spuren
@@ -153,9 +156,58 @@ public abstract class Fahrspur implements Datenelement {
 		}
 	}
 	
-	//Markiert diese Fahrspur als in den Graphen eingetragen
-	public void eintragen() {
+	/*Markiert diese Fahrspur als in den Graphen eingetragen und ruft die Methode bei allen
+	 * unmarkierten Nachbarn auf (Tiefensuche)
+	 */
+	public void eintragen(Graph graph) {
+		//Stelle sicher, dass kein Argument null ist
+		if(graph == null) {
+			return;
+		}
+		
+		//Erzeuge neuen Knoten
+		Knoten knoten = new Knoten(this);
+		this.knoten = knoten;
+		
+		//Füge den neuen Knoten dem Graphen hinzu
+		graph.knotenHinzufuegen(knoten);
+		
+		//Markiere diese Fahrspur als eingetragen
 		eingetragen = true;
+		
+		//Linker Nachbar
+		if(linkeFahrspur != null) {
+			if(!linkeFahrspur.istEingetragen()) {
+				linkeFahrspur.eintragen(graph);
+			}
+			knoten.kanteHinzufuegen(new Kante(linkeFahrspur.knotenGeben(),
+					(breite/2) + (linkeFahrspur.breite/2)));
+		}
+		
+		//Rechter Nachbar
+		if(rechteFahrspur != null) {
+			if(!rechteFahrspur.istEingetragen()) {
+				rechteFahrspur.eintragen(graph);
+			}
+			knoten.kanteHinzufuegen(new Kante(rechteFahrspur.knotenGeben(),
+					(breite/2) + (rechteFahrspur.breite/2)));
+		}
+		
+		//Vorderer Nachbar
+		if(naechsteFahrspur != null) {
+			if(!naechsteFahrspur.istEingetragen()) {
+				naechsteFahrspur.eintragen(graph);
+			}
+			knoten.kanteHinzufuegen(new Kante(naechsteFahrspur.knotenGeben(),
+					(laenge/2) + (naechsteFahrspur.laenge/2)));
+		}
+		
+		//Hinterer Nachbar (ist kein Nachbar im Graphen, da die Autos nicht rückwärts fahren sollen)
+		if(vorherigeFahrspur != null && !vorherigeFahrspur.istEingetragen()) {
+			vorherigeFahrspur.eintragen(graph);
+		}
+				
+		
 	}
 	
 }

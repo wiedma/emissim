@@ -1,16 +1,25 @@
 package org.Streckennetz;
 
+import java.util.ArrayList;
 import org.Graphen.*;
 import org.Verkehr.*;
 import org.main.Simulation;
 
 public class Quelle extends Fahrspur {
 	
+	//Zeit zu der das letzte Fahrzeug aufgesetzt wurde
 	private double[] letzteZeit;
+	//Die Zeitlücke, welche zwischen dem Aufsetzen zweier Fahrzeuge liegen soll
 	private double[] zeitluecke;
+	/*Anzahl der Fahrzeuge, die zurückgehalten werden, da der Abstand zum nächsten Fahrzeug zu
+	*gering ist*/
 	private int[] rueckstau;
+	//Die Vorlauf-Strecken, die an diese Quelle anschließen
 	private Vorlauf[] vorlaeufe;
+	//Wahrscheinlichkeit, mit der ein neu aufgesetztes Fahrzeug ein LKW ist
 	private double lkwAnteil;
+	//Liste aller Strecken, die an dieser Quelle beginnen
+	private ArrayList<Strecke> strecken;
 	
 	public Quelle(Fahrspur einfahrt, double lkwAnteil){
 		//Rufe den Konstruktor der Oberklasse auf
@@ -71,6 +80,10 @@ public class Quelle extends Fahrspur {
 		
 	}
 	
+	public void streckeHinzufuegen(Strecke strecke) {
+		strecken.add(strecke);
+	}
+	
 	public void zeitschritt() {
 		
 		//Für jede Fahrspur
@@ -91,6 +104,59 @@ public class Quelle extends Fahrspur {
 		}
 	}
 	
+	
+	//Versuche ein Fahrzeug zu generieren und es auf den gewünschten Vorlauf zu setzen
+	private boolean generiereFahrzeug(int vorlauf) {
+		Fahrzeug fahrzeug;
+		
+		//Wenn das Fahrzeug auf der rechten Spur generiert werden soll
+		if(vorlauf == 0) {
+			//Bestimme die Wahrscheinlichkeit mit der es sich um einen LKW handelt
+			//LKWs werden nur auf der rechten Spur aufgesetzt
+			double lkwWahrscheinlichkeit = vorlaeufe.length * lkwAnteil;
+			//Generiere Zufallszahl
+			if(Math.random() < lkwWahrscheinlichkeit) {
+				//Erzeuge neuen LKW
+				fahrzeug = new LKW();
+			}
+			else {
+				//Erzeuge neuen PKW
+				fahrzeug = new PKW();
+			}	
+		}
+		//Wenn das Fahrzeug auf einer der anderen Spuren aufgesetzt werden soll
+		else {
+			//Setze einen neuen PKW auf
+			fahrzeug = new PKW();
+		}
+		
+		//Bestimme eine Strecke für das Fahrzeug
+		//Generiere eine Zufallszahl zwischen 0 und der Verkehrsstärke der Quelle
+		double zufall = Math.random() * verkehrsstaerke;
+		//Zwischenspeicher
+		double pointer = 0;
+		//Iteriere durch alle Strecken
+		for(Strecke strecke : strecken) {
+			//Addiere die Verkehrsstärke der Strecke zum Zwischenspeicher
+			pointer += strecke.verkehrsstaerkeGeben();
+			//Prüfe, ob die Zufallszahl mittlerweile überschritten wurde
+			if(pointer >= zufall) {
+				//Weise dem Fahrzeug seine Strecke zu
+				fahrzeug.streckeSetzen(strecke);
+				//Verlasse die Schleife
+				break;
+			}
+		}
+		
+		/*TODO Erst prüfen, ob Sicherheitsabstand zum nächsten Fahrzeug größer ist,
+		* als BX des Fahrers. Weise dem neu aufgesetzten Fahrzeug eine Startgeschwindigkeit zu*/
+		Simulation.fahrzeugHinzufuegen(fahrzeug);
+		vorlaeufe[vorlauf].fahrzeugHinzufuegen(fahrzeug);
+		//Nur ausführen, wenn Erzeugung erfolgreich ist
+		rueckstau[vorlauf] -= 1;
+		return true;
+	}
+	
 	@Override
 	public void verkehrsstaerkeAendern(double aenderung) {
 		//Aktualisiere die Verkehrsstärke
@@ -99,27 +165,6 @@ public class Quelle extends Fahrspur {
 		for(int i = 0; i < zeitluecke.length; i++) {
 			zeitluecke[i] = 3600.0/(verkehrsstaerke/zeitluecke.length);
 		}
-	}
-	
-	//Versuche ein Fahrzeug zu generieren und es auf den gewünschten Vorlauf zu setzen
-	private boolean generiereFahrzeug(int vorlauf) {
-		Fahrzeug fahrzeug;
-		//Generiere Zufallszahl zur Bestimmung von LKW/PKW
-		if(Math.random() < lkwAnteil) {
-			//Erzeuge neuen LKW
-			fahrzeug = new LKW();
-		}
-		else {
-			//Erzeuge neuen PKW
-			fahrzeug = new PKW();
-		}
-		
-		/*TODO Erst prüfen, ob Sicherheitsabstand zum nächsten Fahrzeug größer ist,
-		* als BX des Fahrers*/
-		vorlaeufe[vorlauf].fahrzeugHinzufuegen(fahrzeug);
-		//Nur ausführen, wenn Erzeugung erfolgreich ist
-		rueckstau[vorlauf] -= 1;
-		return true;
 	}
 	
 	@Override

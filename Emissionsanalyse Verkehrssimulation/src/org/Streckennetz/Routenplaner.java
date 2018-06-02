@@ -48,7 +48,12 @@ public class Routenplaner {
 						strecke[i] = (Fahrspur) datenelemente[i];
 					}
 				}
-				strecken.add(new Strecke(strecke, netz));
+				//Erzeuge das Strecken-Objekt
+				Strecke Strecke = new Strecke(strecke, netz);
+				//Speichere die Strecke im Array ab
+				strecken.add(Strecke);
+				//Füge die Strecke der Quelle hinzu
+				quelle.streckeHinzufuegen(Strecke);
 			}
 		}
 		return strecken.toArray(new Strecke[0]);

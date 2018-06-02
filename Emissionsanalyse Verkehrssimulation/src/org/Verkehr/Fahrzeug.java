@@ -3,6 +3,7 @@ import java.io.File;
 
 import org.PhysicEngine.*;
 import org.Streckennetz.Fahrspur;
+import org.Streckennetz.Strecke;
 
 public abstract class Fahrzeug {
 	
@@ -41,6 +42,9 @@ public abstract class Fahrzeug {
 	
 	//CO2-Sensorobjekt des Fahrzeugs
 	protected CO2Sensor co2sensor;
+	
+	//Strecke, die diesem Fahrzeug zugewiesen wurde
+	protected Strecke strecke;
 	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
@@ -106,7 +110,7 @@ public abstract class Fahrzeug {
 		double energie = s * (fr + fl + fb) * (1/wirkungsgrad);
 		
 		//Emissionsdaten sammeln und speichern
-		co2sensor.sammleDaten(kraftstoff.verbrenne(energie));
+		co2sensor.schreibeDaten(kraftstoff.verbrenne(energie));
 		
 		//Neue Geschwindigkeit
 		geschwindigkeit = geschwindigkeit + (beschleunigung * Physics.DELTA_TIME);
@@ -139,6 +143,8 @@ public abstract class Fahrzeug {
 	
 	protected abstract double[] generiereFahrzeugSpecs();
 	
+//Getter und Setter -----------------------------------------------------------------------------
+	
 	public double getWirkungsgrad() {
 		return wirkungsgrad;
 	}
@@ -158,4 +164,13 @@ public abstract class Fahrzeug {
 	public void spurSetzen(Fahrspur spur) {
 		this.spur = spur;
 	}
+	
+	public void streckeSetzen(Strecke strecke) {
+		this.strecke = strecke;
+	}
+	
+	public void sensorAktivieren() {
+		co2sensor.aktiviere();
+	}
+//------------------------------------------------------------------------------------------------
 }

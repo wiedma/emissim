@@ -40,6 +40,8 @@ public class Quelle extends Fahrspur {
 		vorlaeufe[0].vorherigeFahrspur = this;
 		//Berechne die Zeitlücke, die dieser Spur zugeordnet ist nach [ER07] S. 36
 		zeitluecke[0] = 3600.0/verkehrsstaerke;
+		//Intialisiere die Strecken-Liste
+		strecken = new ArrayList<Strecke>();
 		
 	}
 	
@@ -77,7 +79,8 @@ public class Quelle extends Fahrspur {
 			vorlaufBereich.fahrspurHinzufuegen(vorlaeufe[i], vorlaeufe[i-1], true);
 		}
 		
-		
+		//Intialisiere die Strecken-Liste
+		strecken = new ArrayList<Strecke>();
 	}
 	
 	public void streckeHinzufuegen(Strecke strecke) {

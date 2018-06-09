@@ -46,6 +46,15 @@ public abstract class Fahrzeug {
 	//Strecke, die diesem Fahrzeug zugewiesen wurde
 	protected Strecke strecke;
 	
+	//Die Hindernisse in allen 6 Richtungen
+	private Hindernis hinVorne;
+	private Hindernis hinHinten;
+	private Hindernis hinVorneLinks;
+	private Hindernis hinVorneRechts;
+	private Hindernis hinHintenLinks;
+	private Hindernis hinHintenRechts;
+	
+	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
 		
@@ -118,6 +127,14 @@ public abstract class Fahrzeug {
 		
 		//Nach der Zeiteinheit wird die Beschleunigung zurückgesetzt
 		beschleunigung = 0;
+		
+		//Setze die Hindernisse wieder auf null
+		hinVorne = null;
+		hinHinten = null;
+		hinVorneRechts = null;
+		hinHintenRechts = null;
+		hinVorneLinks = null;
+		hinHintenLinks = null;
 	}
 	
 	//Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit
@@ -141,11 +158,50 @@ public abstract class Fahrzeug {
 		return kraftstoff.verbrenne(motorOutput);
 	}
 	
+	
+	public Hindernis hindernisSuchen(HindernisRichtung richtung) {
+		switch(richtung) {
+		case VORNE: return spur.hindernisVorne(this, 0);
+		case HINTEN: return spur.hindernisHinten(this, 0);
+		case VORNE_RECHTS: return spur.hindernisRechts(this, 0, true);
+		case VORNE_LINKS: return spur.hindernisLinks(this, 0, true);
+		case HINTEN_RECHTS: return spur.hindernisRechts(this, 0, false);
+		case HINTEN_LINKS: return spur.hindernisLinks(this, 0, false);
+		default: return null;
+		}
+	}
+	
+	//NEXT Hindernissuche testen
+	public void alleHindernisseSuchen() {
+		if(hinVorne == null) {
+			hinVorne = hindernisSuchen(HindernisRichtung.VORNE);
+		}
+		if(hinHinten == null) {
+			hinHinten = hindernisSuchen(HindernisRichtung.HINTEN);
+		}
+		if(hinVorneLinks == null) {
+			hinVorneLinks = hindernisSuchen(HindernisRichtung.VORNE_LINKS);
+		}
+		if(hinVorneRechts == null) {
+			hinVorneRechts = hindernisSuchen(HindernisRichtung.VORNE_RECHTS);
+		}
+		if(hinHintenLinks == null) {
+			hinHintenLinks = hindernisSuchen(HindernisRichtung.HINTEN_LINKS);
+		}
+		if(hinHintenRechts == null) {
+			hinHintenRechts = hindernisSuchen(HindernisRichtung.HINTEN_RECHTS);
+		}
+	}
+	
 	protected abstract double[] generiereFahrzeugSpecs();
 	
 //Getter und Setter -----------------------------------------------------------------------------
 	
-	public double getWirkungsgrad() {
+	public double laengeGeben() {
+		return laenge;
+	}
+	
+	public double wirkungsgradGeben() {
 		return wirkungsgrad;
 	}
 	
@@ -165,12 +221,33 @@ public abstract class Fahrzeug {
 		this.spur = spur;
 	}
 	
+	public double geschwindigkeitGeben() {
+		return geschwindigkeit;
+	}
+	
 	public void streckeSetzen(Strecke strecke) {
 		this.strecke = strecke;
 	}
 	
 	public void sensorAktivieren() {
 		co2sensor.aktiviere();
+	}
+	
+	public void hindernisSetzen(Hindernis hindernis, HindernisRichtung richtung) {
+		switch(richtung) {
+		case VORNE: hinVorne = hindernis;
+			break;
+		case HINTEN: hinHinten = hindernis;
+			break;
+		case VORNE_LINKS: hinVorneLinks = hindernis;
+			break;
+		case VORNE_RECHTS: hinVorneRechts = hindernis;
+			break;
+		case HINTEN_LINKS: hinHintenLinks = hindernis;
+			break;
+		case HINTEN_RECHTS: hinHintenRechts = hindernis;
+			break;
+		}
 	}
 //------------------------------------------------------------------------------------------------
 }

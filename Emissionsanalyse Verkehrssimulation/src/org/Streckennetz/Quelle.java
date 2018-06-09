@@ -197,5 +197,26 @@ public class Quelle extends Fahrspur {
 			knoten.kanteHinzufuegen(new Kante(vorlauf.knotenGeben(), 0));
 		}
 	}
+	
+	//Quellen melden keine Hindernisse
+	@Override
+	public Hindernis hindernisVorne(Fahrzeug sucher, double entfernung) {
+		return null;
+	}
+	
+	@Override
+	public Hindernis hindernisHinten(Fahrzeug sucher, double entfernung) {
+		return null;
+	}
+	
+	@Override
+	public Hindernis hindernisLinks(Fahrzeug sucher, double entfernung, boolean vorne) {
+		return null;
+	}
+	
+	@Override
+	public Hindernis hindernisRechts(Fahrzeug sucher, double entfernung, boolean vorne) {
+		return null;
+	}
 
 }

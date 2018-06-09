@@ -31,5 +31,9 @@ public class Simulation {
 		netz.fahrzeugHinzufuegen(fahr);
 	}
 	
+	public static void fahrzeugEntfernen(Fahrzeug fahr) {
+		netz.fahrzeugEntfernen(fahr);
+	}
+	
 
 }

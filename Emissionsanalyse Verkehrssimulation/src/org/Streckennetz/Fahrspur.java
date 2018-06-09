@@ -1,6 +1,10 @@
 package org.Streckennetz;
 import org.Graphen.*;
+import org.Verkehr.DummyFahrzeug;
 import org.Verkehr.Fahrzeug;
+import org.Verkehr.Hindernis;
+import org.Verkehr.HindernisRichtung;
+
 import java.util.ArrayList;
 
 public abstract class Fahrspur implements Datenelement {
@@ -76,10 +80,12 @@ public abstract class Fahrspur implements Datenelement {
 		return laenge;
 	}
 	
+	@Override
 	public boolean istEingetragen() {
 		return eingetragen;
 	}
 	
+	@Override
 	public Knoten knotenGeben() {
 		return this.knoten;
 	}
@@ -99,8 +105,12 @@ public abstract class Fahrspur implements Datenelement {
 //-------------------------------------------------------------------------------------------------
 	
 	//Fahrzeuge der Spur hinzufügen und diese wieder entfernen
-	//FIXME Prüfe, ob sich das Fahrzeug noch auf dieser Spur befindet
 	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
+		if(fahrzeug.posGeben() >= laenge) {
+			fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
+			uebergebeFahrzeug(fahrzeug);
+		}
+		
 		fahrzeuge.add(fahrzeug);
 	}
 	
@@ -108,7 +118,7 @@ public abstract class Fahrspur implements Datenelement {
 		fahrzeuge.remove(fahrzeug);
 	}
 	
-	//Verbinde die Spuren f1 und f2 (f2 ist der Nachfolger von f1)
+	//Verbinde die Spuren f1 und f2 (f2 wird der Nachfolger von f1)
 	public static void verbinde(Fahrspur f1, Fahrspur f2) {
 		//Prüfe, ob f1 bereits verbunden ist
 		boolean verbunden = f1.naechsteFahrspur != null;
@@ -156,6 +166,7 @@ public abstract class Fahrspur implements Datenelement {
 		}
 	}
 	
+	@Override
 	/*Markiert diese Fahrspur als in den Graphen eingetragen und ruft die Methode bei allen
 	 * unmarkierten Nachbarn auf (Tiefensuche)
 	 */
@@ -206,8 +217,211 @@ public abstract class Fahrspur implements Datenelement {
 		if(vorherigeFahrspur != null && !vorherigeFahrspur.istEingetragen()) {
 			vorherigeFahrspur.eintragen(graph);
 		}
-				
-		
 	}
 	
+//Hinderniserkennung -----------------------------------------------------------------------------
+	//@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung
+	public Hindernis hindernisVorne(Fahrzeug sucher, double entfernung) {
+		//Wenn sich das suchende Fahrzeug auf dieser Spur befindet
+		if(entfernung == 0) {
+			//Suche nach dem Fahrzeug mit dem kleinsten positiven Abstand zum Sucher
+			Fahrzeug naechster = null;
+			double abstandNaechster = laenge - sucher.posGeben() - (sucher.laengeGeben()/2.0);
+			for(int i = 0; i < fahrzeuge.size(); i++) {
+				Fahrzeug momentan = fahrzeuge.get(i);
+				//Nettoabstand der beiden Fahrzeuge
+				double abstand = (momentan.posGeben() - (momentan.laengeGeben()/2.0))
+								- (sucher.posGeben() + (sucher.laengeGeben()/2.0));
+				if(abstand > 0 && abstand < abstandNaechster && abstand <= 1000) {
+					naechster = momentan;
+					abstandNaechster = abstand;
+				}
+			}
+			//Wenn ein Hindernis in Sichtweite (1km) gefunden wurde
+			if(naechster != null && abstandNaechster <= 1000) {
+				//Wenn der Sucher kein Dummy war
+				if(!(sucher instanceof DummyFahrzeug)) {
+					//Nutze Symmetrie aus um Laufzeit zu sparen
+					Hindernis symmetrisch = new Hindernis(abstandNaechster,
+							sucher.geschwindigkeitGeben(), sucher, naechster, false, true);
+					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
+				}
+				//Gebe das Hindernis zurück
+				return new Hindernis(abstandNaechster, naechster.geschwindigkeitGeben(),
+						naechster, sucher, true, true);
+			}
+			//Wenn die gesuchte Entfernung größer, als 1km ist
+			else if(laenge - sucher.posGeben() > 1000) {
+				//Breche die Suche ab
+				return null;
+			}
+			//Sonst
+			else {
+				//Führe die Suche auf der nächsten Spur fort
+				return naechsteFahrspur.hindernisVorne(sucher,
+						laenge - sucher.posGeben() - (sucher.laengeGeben()/2.0));
+			}
+		}
+		//Wenn sich das suchende Fahrzeug nicht auf dieser Spur befindet
+		else {
+			//Suche nach dem Fahrzeug dieser Spur mit der kleinsten Position
+			Fahrzeug naechster = null;
+			double naechsterPos = laenge;
+			for(int i = 0; i < fahrzeuge.size(); i++) {
+				Fahrzeug momentan = fahrzeuge.get(i);
+				if(momentan.posGeben() - (momentan.laengeGeben()/2.0) < naechsterPos) {
+					naechster = momentan;
+					naechsterPos = momentan.posGeben() - (momentan.laengeGeben()/2.0);
+				}
+			}
+			
+			//Wenn ein Hindernis gefunden wurde, das in Sichtweite (1km) liegt
+			if(naechster != null && naechsterPos + entfernung <= 1000) {
+				//Wenn der Sucher kein Dummy war
+				if(!(sucher instanceof DummyFahrzeug)) {
+					//Nutze Symmetrie aus um Laufzeit zu sparen
+					Hindernis symmetrisch = new Hindernis(naechsterPos + entfernung,
+							sucher.geschwindigkeitGeben(), sucher, naechster, false, false);
+					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
+				}
+				//Gebe dieses zurück
+				return new Hindernis(naechsterPos + entfernung,
+						naechster.geschwindigkeitGeben(), naechster, sucher, true, false);
+			}
+			//Wenn die Sichtweite erfolglos abgesucht wurde
+			else if(naechsterPos + entfernung > 1000) {
+				//Breche die Suche ab
+				return null;
+			}
+			//Sonst
+			else {
+				//Führe die Suche beim Nachfolger fort
+				return naechsteFahrspur.hindernisVorne(sucher, entfernung + laenge);
+			}
+		}
+	}
+	
+	//@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung
+	public Hindernis hindernisHinten(Fahrzeug sucher, double entfernung) {
+		//Wenn sich das suchende Fahrzeug auf dieser Spur befindet
+		if(entfernung == 0) {
+			//Suche nach dem Fahrzeug mit dem kleinsten negativen Abstand zum Sucher
+			Fahrzeug naechster = null;
+			double abstandNaechster = sucher.posGeben() - (sucher.laengeGeben()/2.0);
+			for(int i = 0; i < fahrzeuge.size(); i++) {
+				Fahrzeug momentan = fahrzeuge.get(i);
+				double abstand = (momentan.posGeben() + (momentan.laengeGeben()/2.0))
+								- (sucher.posGeben() - (sucher.laengeGeben()/2.0));
+				if(abstand < 0 && abstand > abstandNaechster && abstand >= -1000) {
+					naechster = momentan;
+					abstandNaechster = abstand;
+				}
+			}
+			//Wenn ein Hindernis in Sichtweite (1km) gefunden wurde
+			if(naechster != null && abstandNaechster >= -1000) {
+				//Wenn der Sucher kein Dummy war
+				if(!(sucher instanceof DummyFahrzeug)) {
+					//Nutze Symmetrie aus um Laufzeit zu sparen
+					Hindernis symmetrisch = new Hindernis(abstandNaechster,
+							sucher.geschwindigkeitGeben(), sucher, naechster, true, true);
+					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
+				}
+				//Gebe dieses zurück
+				return new Hindernis(abstandNaechster, naechster.geschwindigkeitGeben(),
+						naechster, sucher, false, true);
+			}
+			//Wenn die gesuchte Entfernung größer, als 1km ist
+			else if(abstandNaechster < -1000) {
+				//Breche die Suche ab
+				return null;
+			}
+			//Sonst
+			else {
+				//Führe die Suche auf der nächsten Spur fort
+				return vorherigeFahrspur.hindernisHinten(sucher,
+						sucher.posGeben() - (sucher.laengeGeben()/2.0));
+			}
+		}
+		//Wenn sich das suchende Fahrzeug nicht auf dieser Spur befindet
+		else {
+			//Suche nach dem Fahrzeug dieser Spur mit der größten Position
+			Fahrzeug naechster = null;
+			double naechsterPos = 0;
+			for(int i = 0; i < fahrzeuge.size(); i++) {
+				Fahrzeug momentan = fahrzeuge.get(i);
+				if(momentan.posGeben() + (momentan.laengeGeben()/2.0) > naechsterPos) {
+					naechster = momentan;
+					naechsterPos = momentan.posGeben() + (momentan.laengeGeben()/2.0);
+				}
+			}
+			
+			//Wenn ein Hindernis gefunden wurde, das in Sichtweite (1km) liegt
+			if(naechster != null && (laenge - naechsterPos) + entfernung <= 1000) {
+				//Wenn der Sucher kein Dummy war
+				if(!(sucher instanceof DummyFahrzeug)) {
+					//Nutze Symmetrie aus um Laufzeit zu sparen
+					Hindernis symmetrisch = new Hindernis((laenge - naechsterPos) + entfernung,
+							sucher.geschwindigkeitGeben(), sucher, naechster, true, false);
+					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
+				}
+				//Gebe dieses zurück
+				return new Hindernis((laenge - naechsterPos) + entfernung,
+						naechster.geschwindigkeitGeben(), naechster, sucher, false, false);
+			}
+			//Wenn die Sichtweite erfolglos abgesucht wurde
+			else if((laenge - naechsterPos) + entfernung > 1000) {
+				//Breche die Suche ab
+				return null;
+			}
+			//Sonst
+			else {
+				//Führe die Suche beim Nachfolger fort
+				return vorherigeFahrspur.hindernisHinten(sucher, entfernung + laenge);
+			}
+		}
+	}
+	
+	//Suche auf dem linken Nachbarn nach einem Hindernis
+	//@param vorne Soll vorne oder hinten gesucht werden?
+	public Hindernis hindernisLinks(Fahrzeug sucher, double entfernung, boolean vorne) {
+		//Erzeuge einen Dummy auf dem linken Nachbarn
+		DummyFahrzeug dummy = new DummyFahrzeug(sucher.laengeGeben(),
+				sucher.geschwindigkeitGeben(), sucher.posGeben());
+		dummy.spurSetzen(linkeFahrspur);
+		linkeFahrspur.fahrzeugHinzufuegen(dummy);
+		//Lasse den Dummy die Suche durchführen
+		Hindernis h;
+		if(vorne) {
+			h = dummy.hindernisSuchen(HindernisRichtung.VORNE);
+			linkeFahrspur.fahrzeugEntfernen(dummy);
+		}
+		else {
+			h = dummy.hindernisSuchen(HindernisRichtung.HINTEN);
+			linkeFahrspur.fahrzeugEntfernen(dummy);
+		}
+		return h;
+	}
+	
+	//Suche auf dem rechten Nachbarn nach einem Hindernis
+	//@param vorne Soll vorne oder hinten gesucht werden?
+	public Hindernis hindernisRechts(Fahrzeug sucher, double entfernung, boolean vorne) {
+		//Erzeuge einen Dummy auf dem linken Nachbarn
+		DummyFahrzeug dummy = new DummyFahrzeug(sucher.laengeGeben(),
+				sucher.geschwindigkeitGeben(), sucher.posGeben());
+		dummy.spurSetzen(rechteFahrspur);
+		rechteFahrspur.fahrzeugHinzufuegen(dummy);
+		//Lasse den Dummy die Suche durchführen
+		Hindernis h;
+		if(vorne) {
+			h = dummy.hindernisSuchen(HindernisRichtung.VORNE);
+			rechteFahrspur.fahrzeugEntfernen(dummy);
+		}
+		else {
+			h = dummy.hindernisSuchen(HindernisRichtung.HINTEN);
+			rechteFahrspur.fahrzeugEntfernen(dummy);
+		}
+		h.betrachterSetzen(sucher);
+		return h;
+	}
+//------------------------------------------------------------------------------------------------
 }

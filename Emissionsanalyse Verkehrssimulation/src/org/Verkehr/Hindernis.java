@@ -22,12 +22,17 @@ public class Hindernis {
 		this.betrachter = betrachter;
 		this.inFahrtrichtung = inFahrtrichtung;
 		this.gleicheSpur = gleicheSpur;
+		this.typ = typ;
 	}
 	
 //Getter und Setter -------------------------------------------------------------------------------
 	
 	public double entfernungGeben() {
 		return entfernung;
+	}
+	
+	public Fahrzeug zielFahrzeug() {
+		return (Fahrzeug) typ;
 	}
 	
 	public void betrachterSetzen(Fahrzeug betrachter) {

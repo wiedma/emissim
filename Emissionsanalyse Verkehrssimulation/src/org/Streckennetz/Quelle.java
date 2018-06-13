@@ -85,12 +85,20 @@ public class Quelle extends Fahrspur {
 	
 	public void streckeHinzufuegen(Strecke strecke) {
 		strecken.add(strecke);
+		verkehrsstaerkeAendern(strecke.verkehrsstaerkeGeben());
 	}
 	
+	public Strecke streckeGeben(int index) {
+		return strecken.get(index);
+	}
+	
+	@Override
 	public void zeitschritt() {
 		
 		//Für jede Fahrspur
 		for(int i = 0; i < vorlaeufe.length; i++) {
+			//Bewege ihre Fahrzeuge
+			vorlaeufe[i].zeitschritt();
 			//Wenn die Zeitlücke dieser Fahrspur überschritten wurde
 			if((Simulation.zeitGeben() - letzteZeit[i]) >= zeitluecke[i]) {
 				//Setze ein Fahrzeug in den Rückstau
@@ -155,8 +163,10 @@ public class Quelle extends Fahrspur {
 		* als BX des Fahrers. Weise dem neu aufgesetzten Fahrzeug eine Startgeschwindigkeit zu*/
 		Simulation.fahrzeugHinzufuegen(fahrzeug);
 		vorlaeufe[vorlauf].fahrzeugHinzufuegen(fahrzeug);
+		fahrzeug.spurSetzen(vorlaeufe[vorlauf]);
 		//Nur ausführen, wenn Erzeugung erfolgreich ist
 		rueckstau[vorlauf] -= 1;
+		letzteZeit[vorlauf] = Simulation.zeitGeben();
 		return true;
 	}
 	

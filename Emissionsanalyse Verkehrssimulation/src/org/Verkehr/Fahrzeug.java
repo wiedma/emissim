@@ -31,7 +31,7 @@ public abstract class Fahrzeug {
 	//Die Fahrspur auf der sich das Fahrzeug befindet
 	protected Fahrspur spur;
 	
-	//Momentane Geschwindigkeit
+	//Momentane Geschwindigkeit in m/s
 	protected double geschwindigkeit;
 	
 	//Momentan gewählter Gang
@@ -94,7 +94,11 @@ public abstract class Fahrzeug {
 	}
 	
 	//Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen
-	public void update() {
+	public void zeitschritt() {
+		//TODO Hier wieder entfernen, nur zu Testzwecken hier
+		geschwindigkeit = 27.7;
+		alleHindernisseSuchen();
+//----------------------------------------------------------------------------------------
 		//Alte Position
 		double posAlt = pos;
 		
@@ -247,6 +251,18 @@ public abstract class Fahrzeug {
 			break;
 		case HINTEN_RECHTS: hinHintenRechts = hindernis;
 			break;
+		}
+	}
+	
+	public Hindernis hindernisGeben(HindernisRichtung richtung) {
+		switch(richtung) {
+		case VORNE: return hinVorne;
+		case HINTEN: return hinHinten;
+		case VORNE_LINKS: return hinVorneLinks;
+		case VORNE_RECHTS: return hinVorneRechts;
+		case HINTEN_LINKS: return hinHintenLinks;
+		case HINTEN_RECHTS: return hinHintenRechts;
+		default: return null;
 		}
 	}
 //------------------------------------------------------------------------------------------------

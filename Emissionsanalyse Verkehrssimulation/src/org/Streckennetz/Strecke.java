@@ -23,7 +23,7 @@ public class Strecke {
 		//Setze die neue Verkehrsstärke
 		this.verkehrsstaerke = verkehrsstaerke;
 		//Ermittle die Veränderung
-		double aenderung = alteVerkehrsstaerke - this.verkehrsstaerke;
+		double aenderung = this.verkehrsstaerke - alteVerkehrsstaerke;
 		//Erneuere alle Verkehrsstärken in den Fahrspuren dieser Strecke
 		for(Fahrspur spur : spuren) {
 			spur.verkehrsstaerkeAendern(aenderung);

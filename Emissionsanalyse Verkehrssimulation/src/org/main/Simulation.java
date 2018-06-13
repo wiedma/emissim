@@ -23,8 +23,12 @@ public class Simulation {
 	
 //------------------------------------------------------------------------------------------------
 	
-	public void zeitschritt() {
+	public static void zeitschritt() {
+		long millis = System.currentTimeMillis();
+		System.out.println("Fahrzeuge: " + netz.anzahlFahrzeuge());
 		zeit += Physics.DELTA_TIME;
+		netz.zeitschritt();
+		System.out.println("Dauer: " + (System.currentTimeMillis() - millis));
 	}
 	
 	public static void fahrzeugHinzufuegen(Fahrzeug fahr) {

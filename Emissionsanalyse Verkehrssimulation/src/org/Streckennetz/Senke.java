@@ -73,4 +73,9 @@ public class Senke extends Fahrspur{
 	public Hindernis hindernisRechts(Fahrzeug sucher, double entfernung, boolean vorne) {
 		return null;
 	}
+	
+	@Override
+	public void zeitschritt() {
+		//Nichts tun
+	}
 }

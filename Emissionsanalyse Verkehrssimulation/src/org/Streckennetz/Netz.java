@@ -26,12 +26,19 @@ public class Netz {
 		this.fahrzeuge.remove(fahrzeug);
 	}
 	
+	public int anzahlFahrzeuge() {
+		return fahrzeuge.size();
+	}
+	
 	public Fahrspur[] spurenGeben(){
 		return spuren;
 	}
 	
 	public void zeitschritt() {
 		//TODO in zeitschritt() durch alle Fahrzeuge iterieren und Verhalten berechnen
+		for(Fahrspur spur : spuren) {
+			spur.zeitschritt();
+		}
 	}
 	
 

@@ -1,6 +1,4 @@
 package org.Verkehr;
-import java.io.File;
-
 import org.PhysicEngine.*;
 import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
@@ -88,15 +86,16 @@ public abstract class Fahrzeug {
 		beschleunigung = 0;
 		
 		//CO2-Sensorobjekt
-		//TODO In Excel-Tabelle abändern
-		co2sensor = new CO2Sensor(new File("Emissionsdaten\\Kohlenstoffdioxid.txt"));
+		if(!(this instanceof DummyFahrzeug)) {
+			co2sensor = new CO2Sensor();
+		}
 		
 	}
 	
 	//Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen
 	public void zeitschritt() {
 		//TODO Hier wieder entfernen, nur zu Testzwecken hier
-		geschwindigkeit = 27.7;
+		geschwindigkeit = 100/3.6;
 		alleHindernisseSuchen();
 //----------------------------------------------------------------------------------------
 		//Alte Position
@@ -175,7 +174,6 @@ public abstract class Fahrzeug {
 		}
 	}
 	
-	//NEXT Hindernissuche testen
 	public void alleHindernisseSuchen() {
 		if(hinVorne == null) {
 			hinVorne = hindernisSuchen(HindernisRichtung.VORNE);

@@ -39,6 +39,10 @@ public class Hindernis {
 		this.betrachter = betrachter;
 	}
 	
+	public boolean istGleicheFahrspur() {
+		return gleicheSpur;
+	}
+	
 //-------------------------------------------------------------------------------------------------
 	
 	//Zeit bis zur Kollision bei weiterer gleichförmiger Bewegung

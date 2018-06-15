@@ -1,32 +1,26 @@
 package org.Verkehr;
 
-import java.io.File;
-//import java.io.IOException;
+import org.main.Simulation;
 
 public class CO2Sensor implements Sensor<Double>{
 	
-	//Datei in der die Messwerte abgelegt werden
-	private File targetFile;
+	//NEXT Datenspeicherung überarbeiten, Excel verwerfen (?)
+	
+	//Auf manchen Strecken wird die Messung unterbunden (z.B. Vorläufe)
 	private boolean aktiv;
 	
-	public CO2Sensor(File targetFile) {
-		this.targetFile = targetFile;
+	public CO2Sensor() {
 		aktiv = false;
-		//TODO Datei erzeugen
-//		if(!targetFile.exists()) {
-//			try {
-//				targetFile.createNewFile();
-//			}catch(IOException e) {
-//				e.printStackTrace();
-//				System.out.println("Die Ausgabedatei kann nicht erzeugt werden");
-//			}
-//		}
 	}
 
 
 	@Override
 	public void schreibeDaten(double daten) {
-		// TODO Daten in eine Exceltabelle ablegen (mit Zeitpunkt, nur wenn Sensor aktiviert wurde)
+		//Wenn der Sensor aktiviert wurde
+		if(aktiv) {
+			//Lege die gemessenen Daten in der Tabelle ab
+			Simulation.sammleCO2Daten(daten);
+		}
 	}
 	
 	public void aktiviere() {

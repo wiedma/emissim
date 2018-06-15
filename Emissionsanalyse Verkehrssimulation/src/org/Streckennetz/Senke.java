@@ -10,7 +10,7 @@ public class Senke extends Fahrspur{
 	private double letzteZeit;
 	//Die Geschwindigkeit des Fahrzeugs, welches als letztes entfernt wurde
 	private double letzteGeschwindigkeit;
-	//Anzahl der entfernten Fahrzeuge seit der letzten Nachricht an den GarbageCollector
+	//Anzahl der entfernten Fahrzeuge
 	private static int entfernteFahrzeuge = 0;
 	//Anzahl der Fahrzeuge, die entfernt werden bis der GarbageCollector benachrichtigt wird
 	public static final int FAHRZEUGE_BIS_GARBAGE_COLLECTION = 1000;
@@ -20,6 +20,10 @@ public class Senke extends Fahrspur{
 		super(0,0,0,false);
 		letzteZeit = 0;
 		letzteGeschwindigkeit = 0;
+	}
+	
+	public static int anzahlFahrzeugeEntfernt() {
+		return entfernteFahrzeuge;
 	}
 	
 	@Override
@@ -33,11 +37,11 @@ public class Senke extends Fahrspur{
 		//Ab einer gewissen Anzahl von entfernten Fahrzeugen, wird der GarbageCollector
 		//benachrichtigt den Arbeitsspeicher freizugeben
 		entfernteFahrzeuge++;
-		if(entfernteFahrzeuge == FAHRZEUGE_BIS_GARBAGE_COLLECTION) {
+		if(entfernteFahrzeuge % FAHRZEUGE_BIS_GARBAGE_COLLECTION == 0) {
 			System.gc();
-			entfernteFahrzeuge = 0;
 		}
 	}
+	
 	
 	//Senken gaukeln den Fahrzeugen vor das entfernte Fahrzeug würde noch mit konstanter
 	//Geschwindigkeit weiterfahren

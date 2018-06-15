@@ -30,12 +30,12 @@ public enum Kraftstoffe {
 	//Berechne die Emissionen, die bei der Verbrennung bis zu einer gewissen Energie entstehen
 	//Einheit: kg CO₂
 	public double verbrenne(double energie) {
-//		double masse = energie/heizwert;
+//		double masse = energie*10^-6/heizwert;
 //		double volumen = masse/dichte;
 //		double co2EmissionsMasse = co2Emission * volumen;
 //		return co2EmissionsMasse;
 		
-		return ((energie/heizwert)/dichte) * co2Emission;
+		return (((energie/1000000)/heizwert)/dichte) * co2Emission;
 	}
 	
 	//Generiere einen normalverteilten Wirkungsgrad für einen Motor dieses Kraftstoffs

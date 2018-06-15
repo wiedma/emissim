@@ -233,7 +233,7 @@ public abstract class Fahrspur implements Datenelement {
 	}
 	
 //Hinderniserkennung -----------------------------------------------------------------------------
-	/*NEXT Hinderniserkennung komplett überarbeiten. Mehr mit Variablen arbeiten, Code reduzieren
+	/*TODO Hinderniserkennung komplett überarbeiten. Mehr mit Variablen arbeiten, Code reduzieren
 	 * und Entfernungsberechnung auf Mittelpunkte beziehen
 	 */
 	//@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung

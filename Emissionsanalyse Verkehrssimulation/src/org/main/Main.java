@@ -118,9 +118,20 @@ public class Main {
 		
 		Simulation.netzSetzen(netz);
 		
-		while(true) {
+//		while(true) {
+//			Simulation.zeitschritt();
+//		}
+		
+		
+		while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
 			Simulation.zeitschritt();
+			if(Quelle.fahrzeugeErzeugt() > 500) {
+				autobahnBeginn.aktivSetzen(false);
+			}
 		}
+		
+		Simulation.beenden();
+		
 	}
 
 }

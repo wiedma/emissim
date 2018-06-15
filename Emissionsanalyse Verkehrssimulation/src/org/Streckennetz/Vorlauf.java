@@ -1,5 +1,6 @@
 package org.Streckennetz;
 import org.Verkehr.Fahrzeug;
+import org.main.Simulation;
 
 public class Vorlauf extends Gerade {
 	
@@ -13,6 +14,7 @@ public class Vorlauf extends Gerade {
 		//Referenzen des Fahrzeugs neu setzen
 		fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
 		fahrzeug.spurSetzen(naechsteFahrspur);
+		Simulation.fahrzeugHinzufuegen(fahrzeug);
 		//Aktiviere den Sensor des Fahrzeugs
 		fahrzeug.sensorAktivieren();
 		

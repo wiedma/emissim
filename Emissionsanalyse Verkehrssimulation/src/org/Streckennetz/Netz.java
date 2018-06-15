@@ -8,6 +8,7 @@ public class Netz {
 	//Die Spuren aus denen das Netz besteht
 	private Fahrspur[] spuren;
 	//Der Kürzeste Pfad von jeder Quelle zu jeder Senke
+	@SuppressWarnings("unused")
 	private Strecke[] strecken;
 	//Alle Fahrzeuge, die sich im Netz befinden (Anzahl ändert sich @runtime)
 	private ArrayList<Fahrzeug> fahrzeuge;

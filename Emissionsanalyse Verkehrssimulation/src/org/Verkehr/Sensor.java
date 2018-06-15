@@ -1,5 +1,4 @@
 package org.Verkehr;
-import java.io.*;
 
 public interface Sensor<T> {
 	

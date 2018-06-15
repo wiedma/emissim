@@ -20,6 +20,10 @@ public class Quelle extends Fahrspur {
 	private double lkwAnteil;
 	//Liste aller Strecken, die an dieser Quelle beginnen
 	private ArrayList<Strecke> strecken;
+	//Quellen können aktiviert/deaktiviert werden
+	private boolean aktiv = true;
+	
+	private static int fahrzeugeErzeugt;
 	
 	public Quelle(Fahrspur einfahrt, double lkwAnteil){
 		//Rufe den Konstruktor der Oberklasse auf
@@ -83,6 +87,10 @@ public class Quelle extends Fahrspur {
 		strecken = new ArrayList<Strecke>();
 	}
 	
+	public void aktivSetzen(boolean aktiv) {
+		this.aktiv = aktiv;
+	}
+	
 	public void streckeHinzufuegen(Strecke strecke) {
 		strecken.add(strecke);
 		verkehrsstaerkeAendern(strecke.verkehrsstaerkeGeben());
@@ -92,6 +100,10 @@ public class Quelle extends Fahrspur {
 		return strecken.get(index);
 	}
 	
+	public static int fahrzeugeErzeugt() {
+		return fahrzeugeErzeugt;
+	}
+	
 	@Override
 	public void zeitschritt() {
 		
@@ -99,8 +111,8 @@ public class Quelle extends Fahrspur {
 		for(int i = 0; i < vorlaeufe.length; i++) {
 			//Bewege ihre Fahrzeuge
 			vorlaeufe[i].zeitschritt();
-			//Wenn die Zeitlücke dieser Fahrspur überschritten wurde
-			if((Simulation.zeitGeben() - letzteZeit[i]) >= zeitluecke[i]) {
+			//Wenn die Zeitlücke dieser Fahrspur überschritten wurde und die Quelle aktiv ist
+			if((Simulation.zeitGeben() - letzteZeit[i]) >= zeitluecke[i] && aktiv) {
 				//Setze ein Fahrzeug in den Rückstau
 				rueckstau[i] += 1;
 			}
@@ -161,12 +173,12 @@ public class Quelle extends Fahrspur {
 		
 		/*TODO Erst prüfen, ob Sicherheitsabstand zum nächsten Fahrzeug größer ist,
 		* als BX des Fahrers. Weise dem neu aufgesetzten Fahrzeug eine Startgeschwindigkeit zu*/
-		Simulation.fahrzeugHinzufuegen(fahrzeug);
 		vorlaeufe[vorlauf].fahrzeugHinzufuegen(fahrzeug);
 		fahrzeug.spurSetzen(vorlaeufe[vorlauf]);
 		//Nur ausführen, wenn Erzeugung erfolgreich ist
 		rueckstau[vorlauf] -= 1;
 		letzteZeit[vorlauf] = Simulation.zeitGeben();
+		fahrzeugeErzeugt++;
 		return true;
 	}
 	

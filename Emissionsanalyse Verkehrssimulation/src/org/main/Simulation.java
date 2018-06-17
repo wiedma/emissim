@@ -6,13 +6,12 @@ import org.Verkehr.Fahrzeug;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class Simulation {
+public final class Simulation {
 	
 	//TODO Simulations-Klasse modellieren
 	
@@ -62,7 +61,7 @@ public class Simulation {
 		XSSFCell zeitZelle = currentCO2Row.createCell(0);
 		zeitZelle.setCellValue(zeit);
 		XSSFCell wertZelle = currentCO2Row.createCell(1);
-		wertZelle.setCellValue(momentanCO2Ausstoﬂ*1000);
+		wertZelle.setCellValue(momentanCO2Ausstoﬂ);
 		XSSFCell anzahlZelle = currentCO2Row.createCell(2);
 		anzahlZelle.setCellValue(netz.anzahlFahrzeuge());
 		//Setze den momentanen CO2-Ausstoﬂ wieder zur¸ck
@@ -97,6 +96,9 @@ public class Simulation {
 	//Schreibt den gesammelten Datensatz auf die Festplatte
 	public static void beenden() {
 		try {
+			XSSFRow row = CO2SHEET.createRow(currentCO2Row.getRowNum());
+			row.createCell(0).setCellValue("Summe:");
+			row.createCell(1).setCellFormula("SUM($B$1:$B$" + currentCO2Row.getRowNum() + ")/1000");
 			outputStream = new FileOutputStream(new File("output.xlsx"));
 			WORKBOOK.write(outputStream);
 			WORKBOOK.close();
@@ -113,7 +115,7 @@ public class Simulation {
 		XSSFCell beschriftungZeit = currentCO2Row.createCell(0);
 		beschriftungZeit.setCellValue("Zeit in s");
 		XSSFCell beschriftungWert = currentCO2Row.createCell(1);
-		beschriftungWert.setCellValue("CO2-Emission in g");
+		beschriftungWert.setCellValue("CO2-Emission in kg");
 		XSSFCell beschriftungAnzahl = currentCO2Row.createCell(2);
 		beschriftungAnzahl.setCellValue("Anzahl der Fahrzeuge");
 		currentCO2Row = CO2SHEET.createRow(1);

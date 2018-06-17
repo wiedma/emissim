@@ -3,6 +3,8 @@ package org.main;
 import org.Streckennetz.*;
 
 public class Main {
+	
+	public static final double geschwindigkeit = 100;
 
 	public static void main(String[] args) {
 		beispiel10km();
@@ -29,9 +31,9 @@ public class Main {
 		Gerade gerade18 = new Gerade(1000, 2, 120, false);
 		Gerade gerade19 = new Gerade(1000, 2, 120, false);
 		Gerade gerade20 = new Gerade(1000, 2, 120, false);
-	
-		Gerade ausfahrt = new Gerade(10, 2, 100, false);
-		Gerade weiter = new Gerade (100, 2, 120, false);
+		
+		
+		Senke autobahnEnde = new Senke();
 		
 		Fahrspur.verbinde(gerade1, gerade2);
 		Fahrspur.verbinde(gerade2, gerade3);
@@ -42,7 +44,7 @@ public class Main {
 		Fahrspur.verbinde(gerade7, gerade8);
 		Fahrspur.verbinde(gerade8, gerade9);
 		Fahrspur.verbinde(gerade9, gerade10);
-		Fahrspur.verbinde(gerade10, ausfahrt);
+		Fahrspur.verbinde(gerade10, autobahnEnde);
 		
 		Fahrspur.verbinde(gerade11, gerade12);
 		Fahrspur.verbinde(gerade12, gerade13);
@@ -53,7 +55,7 @@ public class Main {
 		Fahrspur.verbinde(gerade17, gerade18);
 		Fahrspur.verbinde(gerade18, gerade19);
 		Fahrspur.verbinde(gerade19, gerade20);
-		Fahrspur.verbinde(gerade20, weiter);
+		Fahrspur.verbinde(gerade20, autobahnEnde);
 		
 		Mehrspurbereich autobahn1 = new Mehrspurbereich(gerade1);
 		autobahn1.fahrspurHinzufuegen(gerade11, gerade1, true);
@@ -78,13 +80,7 @@ public class Main {
 		
 		Quelle autobahnBeginn = new Quelle(autobahn1, 0.1);
 		
-		Senke ausfahrtSenke = new Senke();
-		Senke autobahnEnde = new Senke();
-		
-		Fahrspur.verbinde(ausfahrt, ausfahrtSenke);
-		Fahrspur.verbinde(weiter, autobahnEnde);
-		
-		Fahrspur[] spuren = new Fahrspur[25];
+		Fahrspur[] spuren = new Fahrspur[22];
 		
 		spuren[0] = gerade1;
 		spuren[1] = gerade2;
@@ -106,21 +102,13 @@ public class Main {
 		spuren[17] = gerade18;
 		spuren[18] = gerade19;
 		spuren[19] = gerade20;
-		spuren[20] = weiter;
-		spuren[21] = ausfahrt;
-		spuren[22] = autobahnBeginn;
-		spuren[23] = autobahnEnde;
-		spuren[24] = ausfahrtSenke;
+		spuren[20] = autobahnBeginn;
+		spuren[21] = autobahnEnde;
 		
 		Netz netz = new Netz(spuren);
 		autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(2200);
-		autobahnBeginn.streckeGeben(1).verkehrsstaerkeSetzen(550);
 		
 		Simulation.netzSetzen(netz);
-		
-//		while(true) {
-//			Simulation.zeitschritt();
-//		}
 		
 		
 		while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {

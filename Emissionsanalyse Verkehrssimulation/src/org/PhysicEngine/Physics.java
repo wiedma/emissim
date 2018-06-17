@@ -1,6 +1,6 @@
 package org.PhysicEngine;
 
-public abstract class Physics {
+public final class Physics {
 	
 	//Erdbeschleunigung g in m*(s^-2)
 	public static final double ERDBESCHLEUNIGUNG = 9.81;

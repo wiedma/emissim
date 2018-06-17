@@ -73,9 +73,13 @@ class HindernisTest {
 		
 		Fahrspur.verbinde(gerade3, senke);
 		
-		gerade1.zeitschritt();
-		gerade2.zeitschritt();
-		gerade3.zeitschritt();
+		vorne.alleHindernisseSuchen();
+		vorneLinks.alleHindernisseSuchen();
+		vorneRechts.alleHindernisseSuchen();
+		messung.alleHindernisseSuchen();
+		hinten.alleHindernisseSuchen();
+		hintenLinks.alleHindernisseSuchen();
+		hintenRechts.alleHindernisseSuchen();
 		
 	}
 

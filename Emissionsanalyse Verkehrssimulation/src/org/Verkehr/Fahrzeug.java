@@ -2,6 +2,7 @@ package org.Verkehr;
 import org.PhysicEngine.*;
 import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
+import org.main.Main;
 
 public abstract class Fahrzeug {
 	
@@ -95,7 +96,7 @@ public abstract class Fahrzeug {
 	//Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen
 	public void zeitschritt() {
 		//TODO Hier wieder entfernen, nur zu Testzwecken hier
-		geschwindigkeit = 100/3.6;
+		geschwindigkeit = Main.geschwindigkeit/3.6;
 		alleHindernisseSuchen();
 //----------------------------------------------------------------------------------------
 		//Alte Position

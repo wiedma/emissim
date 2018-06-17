@@ -2,7 +2,7 @@ package org.Streckennetz;
 import java.util.ArrayList;
 import org.Graphen.*;
 
-public class Routenplaner {
+public final class Routenplaner {
 	
 	public static Strecke[] planeRouten(Netz netz) {
 		//Array aller Fahrspuren im Netz

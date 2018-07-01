@@ -1,9 +1,9 @@
 package org.Streckennetz;
 import java.util.ArrayList;
-
+/**Ein Mehrspurbereich beschreibt benachbarte Fahrspuren auf denen ein Spurwechsel erfolgen kann*/
 public class Mehrspurbereich {
 	
-	//Die Spuren, die diesen Mehrspurbereich definieren
+	/**Die Spuren, die diesen Mehrspurbereich definieren*/
 	private ArrayList<Fahrspur> fahrspuren;
 	
 	//Konstruktor
@@ -12,15 +12,15 @@ public class Mehrspurbereich {
 		fahrspuren.add(ersteSpur);
 	}
 	
-	//Prüft, ob dieser Mehrspurbereich die angegebene Fahrspur bereits enthält
+	/**Prüft, ob dieser Mehrspurbereich die angegebene Fahrspur bereits enthält
+	 * @param spur Die Spur welche geprüft werden soll*/
 	public boolean enthaeltFahrspur(Fahrspur spur){
 		return fahrspuren.contains(spur);
 	}
 	
-	//Fügt diesem Mehrspurbereich eine weitere Fahrspur hinzu
-	//@param referenz Eine Fahrspur, die als Referenzpunkt innerhalb des Mehrspurbereichs dient 
-	//		 um die Position festzustellen
-	//@param links Gibt an, ob neueSpur links oder rechts von referenz verbunden werden soll
+	/**Fügt diesem Mehrspurbereich eine weitere Fahrspur hinzu
+	*@param referenz Eine Fahrspur, die als Referenzpunkt innerhalb des Mehrspurbereichs dient um die Position festzustellen
+	*@param links Gibt an, ob neueSpur links oder rechts von referenz verbunden werden soll*/
 	public void fahrspurHinzufuegen(Fahrspur neueSpur, Fahrspur referenz, boolean links){
 		//Wenn links eingefügt werden soll
 		if(links){
@@ -63,7 +63,7 @@ public class Mehrspurbereich {
 	}
 	
 	//TODO fahrspurEntfernen() testen
-	//Entfernt eine Fahrspur und räumt alle Referenzen auf
+	/**Entfernt eine Fahrspur und räumt alle Referenzen auf*/
 	public void fahrspurEntfernen(Fahrspur spur){
 		fahrspuren.remove(spur);
 		spur.mehrspurbereich = null;
@@ -82,8 +82,8 @@ public class Mehrspurbereich {
 		return fahrspuren.size();
 	}
 	
-	//Gibt die Fahrspur am gewünschten Index
-	//@param index Die rechteste Fahrspur hat den Index 0. Der Index steigt nach links.
+	/**Gibt die Fahrspur am gewünschten Index
+	  *@param index Die rechteste Fahrspur hat den Index 0. Der Index steigt nach links.*/
 	public Fahrspur fahrspurGeben(int index) {
 		return fahrspuren.get(index);
 	}

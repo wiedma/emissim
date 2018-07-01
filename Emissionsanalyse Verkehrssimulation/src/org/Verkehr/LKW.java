@@ -1,13 +1,21 @@
 package org.Verkehr;
-
 import org.PhysicEngine.Physics;
-
+/**LKWs sind spezielle Fahrzeuge*/
 public class LKW extends Fahrzeug {
 	
 	public LKW(){
 		super();
 	}
 
+	/**Generiere zufällig die Spezifikationen des Fahrzeugs.
+	 * Längenverteilung nach [ER07],
+	 * Breitenverteilung nach [ER07],
+	 * Höhenverteilung nach eigener Abschätzung (4m sind gesetzlich das Maximum nach § 32 StVZO),
+	 * Gewichtsverteilung nach eigener Abschätzung (Grenzwerte nach § 34 StVZO),
+	 * Als Kraftstoff für LKW wird der LKW-Diesel verwendet, welcher die selbe DIN-Normen wie normaler Diesel erfüllt,
+	 * Rollreibung nach [AL13],
+	 * Luftreibung nach [AL13].
+	 */
 	@Override
 	protected double[] generiereFahrzeugSpecs() {
 		

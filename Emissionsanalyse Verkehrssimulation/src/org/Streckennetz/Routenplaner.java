@@ -1,9 +1,14 @@
 package org.Streckennetz;
 import java.util.ArrayList;
 import org.Graphen.*;
-
+/**Berechnet zu Beginn der Laufzeit noch vor dem Start der Simulation alle möglichen Pfade für ein Fahrzeug*/
 public final class Routenplaner {
 	
+	/**Berechne alle Strecken (=Pfade) in diesem Streckennetz
+	 * 
+	 * @param netz Das Netz dessen Pfade berechnet werden sollen
+	 * @return Die berechneten Pfade als Strecken
+	 */
 	public static Strecke[] planeRouten(Netz netz) {
 		//Array aller Fahrspuren im Netz
 		Fahrspur[] spuren = netz.spurenGeben();

@@ -1,12 +1,12 @@
 package org.Streckennetz;
 import org.Verkehr.Fahrzeug;
-
+/**Eine Strecke ist der kürzeste Pfad zwischen einer Quelle und einer Senke*/
 public class Strecke {
 	
-	//Die Fahrspuren, die zu dieser Strecke gehören
+	/**Die Fahrspuren, die zu dieser Strecke gehören*/
 	private Fahrspur[] spuren;
 	
-	//Die Verkehrsstärke, die von der Quelle auf dieser Strecke angestrebt wird in Fz/h
+	/**Die Verkehrsstärke, die von der Quelle auf dieser Strecke angestrebt wird in Fz/h*/
 	private double verkehrsstaerke;
 	
 	public Strecke(Fahrspur[] spuren, Netz netz) {
@@ -38,7 +38,11 @@ public class Strecke {
 //---------------------------------------------------------------------------------------------
 	
 	//TODO entfernungBisSpurende() testen
-	//Gibt die Entfernung bis zum Ende des aktuellen Fahrstreifens zurück
+	/**Gibt die Entfernung bis zum Ende des aktuellen Fahrstreifens zurück
+	 * 
+	 * @param fahrzeug Das Fahrzeug, welches die Entfernung anfrägt
+	 * @return Die Entfernung bis zum Ende der aktuellen Spur
+	 */
 	public double entfernungBisSpurende(Fahrzeug fahrzeug){
 		double entfernung = 0;
 		Fahrspur spur = fahrzeug.spurGeben();
@@ -52,14 +56,19 @@ public class Strecke {
 		return entfernung;
 	}
 	
-	//Gibt die Ausfahrt an, an der das Fahrzeug die Autobahn verlassen wird
+	/**Gibt die Ausfahrt an, an der das Fahrzeug die Autobahn verlassen wird
+	 * @return Die letzte befahrbare Fahrspur dieser Strecke ist die Ausfahrt
+	 */
 	public Fahrspur naechsteAusfahrt(){
 		//Die letzte Fahrspur in der Strecke ist immer die Senke, also ist die Fahrspur davor die Ausfahrt
 		return spuren[spuren.length - 2];
 	}
 	
 	//TODO entfernungBisAusfahrt() testen
-	//Gibt die Entfernung des Fahrzeugs von seiner Ausfahrt an
+	/**Gibt die Entfernung des Fahrzeugs von seiner Ausfahrt an
+	 * @param fahrzeug Das Fahrzeug, welches die Entfernung anfrägt
+	 * @return Die Entfernung bis zur Ausfahrt
+	 */
 	public double entfernungBisAusfahrt(Fahrzeug fahrzeug){
 		//Die Ausfahrt, an der das Fahrzeug die Autobahn verlässt
 		Fahrspur ausfahrt = naechsteAusfahrt();

@@ -4,45 +4,44 @@ import org.Verkehr.DummyFahrzeug;
 import org.Verkehr.Fahrzeug;
 import org.Verkehr.Hindernis;
 import org.Verkehr.HindernisRichtung;
-
 import java.util.ArrayList;
-
+/**
+ * Die Fahrspur stellt die kleinste Einheit im Streckennetz dar.
+ * Dieses wird nach dem Baukastenprinzip aus den Einzelteilen zusammengebaut
+ */
 public abstract class Fahrspur implements Datenelement {
 	
-	//Gibt an, ob Fahrzeuge auf dieser Spur überholen dürfen
+	/**Gibt an, ob Fahrzeuge auf dieser Spur überholen dürfen*/
 	protected boolean ueberholverbot;
 	
-	//Gibt an, ob man diese Fahrspur befahren kann
+	/**Gibt an, ob man diese Fahrspur befahren kann*/
 	protected boolean befahrbar;
 	
-	//Das Tempolimit
+	/**Das Tempolimit*/
 	protected double maxGeschwindigkeit;
 	
-	//Räumliche Ausdehnung, breite eigentlich nur für GUI relevant
+	/**Räumliche Ausdehnung*/
 	protected double laenge, breite;
 	
-	//Die Nachbarn dieser Spur
-	protected Fahrspur naechsteFahrspur;
-	protected Fahrspur vorherigeFahrspur;
-	protected Fahrspur linkeFahrspur;
-	protected Fahrspur rechteFahrspur;
+	/**Die Nachbarn dieser Spur*/
+	protected Fahrspur naechsteFahrspur, vorherigeFahrspur, linkeFahrspur, rechteFahrspur;
 	
-	//Der Mehrspurbereich, dem diese Fahrspur angehört
+	/**Der Mehrspurbereich, dem diese Fahrspur angehört*/
 	protected Mehrspurbereich mehrspurbereich;
 	
-	//Die Fahrzeuge auf dieser Fahrspur
+	/**Die Fahrzeuge auf dieser Fahrspur*/
 	protected ArrayList<Fahrzeug> fahrzeuge;
 	
-	/*Die Verkehrsstärke dieser Fahrspur berechnet sich als Summe der Verkehrsstärken aller
+	/**Die Verkehrsstärke dieser Fahrspur berechnet sich als Summe der Verkehrsstärken aller
 	 * Strecken, die diese Fahrspur beinhalten. Zugewiesen wird dieser Wert nicht bei erstellung
 	 * der Fahrspur, sondern nach Generierung der Strecken. Der Wert soll noch während der
 	 * Laufzeit veränderbar sein*/
 	protected double verkehrsstaerke;
 	
-	//Speichert, ob diese Fahrspur bereits in den Graphen zur Routenplanung eingetragen ist
+	/**Speichert, ob diese Fahrspur bereits in den Graphen zur Routenplanung eingetragen ist*/
 	protected boolean eingetragen;
 	
-	//Der Knoten der diese Fahrspur im Graphen repräsentiert
+	/**Der Knoten der diese Fahrspur im Graphen repräsentiert*/
 	protected Knoten knoten;
 	
 	//Konstruktor
@@ -95,7 +94,7 @@ public abstract class Fahrspur implements Datenelement {
 		return verkehrsstaerke;
 	}
 	
-	/*Ändert die Verkehrsstärke um den gegebenen Wert. Diese Methode wird von den Strecken
+	/**Ändert die Verkehrsstärke um den gegebenen Wert. Diese Methode wird von den Strecken
 	 * genutzt, um die Verkehrsstärken der Fahrspuren zu berechnen, ohne Zugriff auf die Verkehrs-
 	 * stärken der anderen Strecken zu besitzen.
 	 * Außerdem erlaubt dieser Ansatz eine leichtere Änderung der Verkehrsstärken in der Laufzeit*/
@@ -105,7 +104,7 @@ public abstract class Fahrspur implements Datenelement {
 	
 //-------------------------------------------------------------------------------------------------
 	
-	//Fahrzeuge der Spur hinzufügen und diese wieder entfernen
+	/**Fahrzeuge der Spur hinzufügen*/
 	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
 		if(fahrzeug.posGeben() >= laenge) {
 			fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
@@ -115,11 +114,12 @@ public abstract class Fahrspur implements Datenelement {
 		fahrzeuge.add(fahrzeug);
 	}
 	
+	/**Fahrzeuge aus der Spur entfernen*/
 	public void fahrzeugEntfernen(Fahrzeug fahrzeug) {
 		fahrzeuge.remove(fahrzeug);
 	}
 	
-	//Verbinde die Spuren f1 und f2 (f2 wird der Nachfolger von f1)
+	/**Verbinde die Spuren f1 und f2 (f2 wird der Nachfolger von f1)*/
 	public static void verbinde(Fahrspur f1, Fahrspur f2) {
 		//Prüfe, ob f1 bereits verbunden ist
 		boolean verbunden = f1.naechsteFahrspur != null;
@@ -147,7 +147,7 @@ public abstract class Fahrspur implements Datenelement {
 		f2.vorherigeFahrspur = f1;
 	}
 	
-	//Übergibt das Fahrzeug an die nachfolgende Fahrspur
+	/**Übergibt das Fahrzeug an die nachfolgende Fahrspur*/
 	protected void uebergebeFahrzeug(Fahrzeug fahrzeug) {
 		//Referenzen des Fahrzeugs neu setzen
 		fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
@@ -158,7 +158,8 @@ public abstract class Fahrspur implements Datenelement {
 		this.fahrzeugEntfernen(fahrzeug);
 	}
 	
-	//Prüft, ob diese Fahrspur ein "Nachbar" (im Mehrspurbereich) des Argumentes ist
+	/**Prüft, ob diese Fahrspur ein "Nachbar" (im Mehrspurbereich) des Argumentes ist
+	 * @param spur Die Spur auf welche geprüft werden soll*/
 	public boolean istBenachbart(Fahrspur spur){
 		try{
 			return mehrspurbereich.enthaeltFahrspur(spur);
@@ -168,7 +169,7 @@ public abstract class Fahrspur implements Datenelement {
 	}
 	
 	@Override
-	/*Markiert diese Fahrspur als in den Graphen eingetragen und ruft die Methode bei allen
+	/**Markiert diese Fahrspur als in den Graphen eingetragen und ruft die Methode bei allen
 	 * unmarkierten Nachbarn auf (Tiefensuche)
 	 */
 	public void eintragen(Graph graph) {
@@ -220,6 +221,8 @@ public abstract class Fahrspur implements Datenelement {
 		}
 	}
 	
+	/**Berechne die neue Position dieses Fahrzeugs nach dem Zeitschritt
+	 * Berechnet auch die Emissionen*/
 	public void zeitschritt() {
 		//Itereriere rückwärts um ConcurrentModificationException zu vermeiden
 		for(int i = fahrzeuge.size() - 1; i >= 0; i--) {
@@ -236,7 +239,9 @@ public abstract class Fahrspur implements Datenelement {
 	/*TODO Hinderniserkennung komplett überarbeiten. Mehr mit Variablen arbeiten, Code reduzieren
 	 * und Entfernungsberechnung auf Mittelpunkte beziehen
 	 */
-	//@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung
+	/**Suche nach dem ersten Hindernis vor dem Fahrzeug in der Entfernung von 1km
+	*@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung
+	*@param sucher Das Fahrzeug, welches die Hindernissuche durchführt*/
 	public Hindernis hindernisVorne(Fahrzeug sucher, double entfernung) {
 		//Wenn sich das suchende Fahrzeug auf dieser Spur befindet
 		if(entfernung == 0) {
@@ -406,7 +411,10 @@ public abstract class Fahrspur implements Datenelement {
 		}
 	}
 	
-	//@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung
+	/** Sucht nach dem ersten Hindernis hinter dem Fahrzeug in einer Entfernung von 1km
+	 *  @param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung
+	 *  @param sucher Das Fahrzeug, das die Hindernissuche durchführt
+	 */
 	public Hindernis hindernisHinten(Fahrzeug sucher, double entfernung) {
 		//Wenn sich das suchende Fahrzeug auf dieser Spur befindet
 		if(entfernung == 0) {
@@ -574,8 +582,10 @@ public abstract class Fahrspur implements Datenelement {
 		}
 	}
 	
-	//Suche auf dem linken Nachbarn nach einem Hindernis
-	//@param vorne Soll vorne oder hinten gesucht werden?
+	/**Suche auf dem linken Nachbarn nach einem Hindernis
+	*  @param vorne Soll vorne oder hinten gesucht werden?
+	*  @param sucher Das Fahrzeug, das die Hindernissuche durchführt
+	*  @param entfernung Die bereits abgesuchte Entfernung*/
 	public Hindernis hindernisLinks(Fahrzeug sucher, double entfernung, boolean vorne) {
 		//Wenn es keinen linken Nachbarn gibt
 		if(linkeFahrspur == null) {
@@ -602,8 +612,10 @@ public abstract class Fahrspur implements Datenelement {
 		return h;
 	}
 	
-	//Suche auf dem rechten Nachbarn nach einem Hindernis
-	//@param vorne Soll vorne oder hinten gesucht werden?
+	/**Suche auf dem rechten Nachbarn nach einem Hindernis
+	*  @param vorne Soll vorne oder hinten gesucht werden?
+	*  @param sucher Das Fahrzeug, das die Hindernissuche durchführt
+	*  @param entfernung Die bereits abgesuchte Entfernung*/
 	public Hindernis hindernisRechts(Fahrzeug sucher, double entfernung, boolean vorne) {
 		//Wenn es keinen rechten Nachbarn gibt
 		if(rechteFahrspur == null) {

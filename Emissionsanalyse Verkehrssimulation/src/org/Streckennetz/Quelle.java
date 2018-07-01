@@ -4,25 +4,25 @@ import java.util.ArrayList;
 import org.Graphen.*;
 import org.Verkehr.*;
 import org.main.Simulation;
-
+/**Quellen sind Fahrspuren ohne räumliche Ausdehnung, welche Fahrzeuge erzeugen*/
 public class Quelle extends Fahrspur {
 	
-	//Zeit zu der das letzte Fahrzeug aufgesetzt wurde
+	/**Zeit zu der das letzte Fahrzeug aufgesetzt wurde*/
 	private double[] letzteZeit;
-	//Die Zeitlücke, welche zwischen dem Aufsetzen zweier Fahrzeuge liegen soll
+	/**Die Zeitlücke, welche zwischen dem Aufsetzen zweier Fahrzeuge liegen soll*/
 	private double[] zeitluecke;
-	/*Anzahl der Fahrzeuge, die zurückgehalten werden, da der Abstand zum nächsten Fahrzeug zu
+	/**Anzahl der Fahrzeuge, die zurückgehalten werden, da der Abstand zum nächsten Fahrzeug zu
 	*gering ist*/
 	private int[] rueckstau;
-	//Die Vorlauf-Strecken, die an diese Quelle anschließen
+	/**Die Vorlauf-Strecken, die an diese Quelle anschließen*/
 	private Vorlauf[] vorlaeufe;
-	//Wahrscheinlichkeit, mit der ein neu aufgesetztes Fahrzeug ein LKW ist
+	/**Wahrscheinlichkeit, mit der ein neu aufgesetztes Fahrzeug ein LKW ist*/
 	private double lkwAnteil;
-	//Liste aller Strecken, die an dieser Quelle beginnen
+	/**Liste aller Strecken, die an dieser Quelle beginnen*/
 	private ArrayList<Strecke> strecken;
-	//Quellen können aktiviert/deaktiviert werden
+	/**Quellen können aktiviert/deaktiviert werden*/
 	private boolean aktiv = true;
-	
+	/**Die Gesamtanzahl erzeugter Fahrzeuge*/
 	private static int fahrzeugeErzeugt;
 	
 	public Quelle(Fahrspur einfahrt, double lkwAnteil){
@@ -91,6 +91,7 @@ public class Quelle extends Fahrspur {
 		this.aktiv = aktiv;
 	}
 	
+	/**Fügt der Quelle eine neue Strecke hinzu*/
 	public void streckeHinzufuegen(Strecke strecke) {
 		strecken.add(strecke);
 		verkehrsstaerkeAendern(strecke.verkehrsstaerkeGeben());
@@ -100,10 +101,12 @@ public class Quelle extends Fahrspur {
 		return strecken.get(index);
 	}
 	
+	/**Gibt die Gesamtanzahl aller an dieser Quelle erzeugten Fahrzeuge*/
 	public static int fahrzeugeErzeugt() {
 		return fahrzeugeErzeugt;
 	}
 	
+	/**Entscheide, ob ein Fahrzeug aufgesetzt werden soll und erzeuge ggf. eines*/
 	@Override
 	public void zeitschritt() {
 		
@@ -128,7 +131,9 @@ public class Quelle extends Fahrspur {
 	}
 	
 	
-	//Versuche ein Fahrzeug zu generieren und es auf den gewünschten Vorlauf zu setzen
+	/**Versuche ein Fahrzeug zu generieren und es auf den gewünschten Vorlauf zu setzen
+	 * @return Gibt an, ob die Generierung erfolgreich war. Die Generierung scheitert, wenn nicht ausreichend Sicherheitsabstand zum nächsten Fahrzeug besteht
+	 */
 	private boolean generiereFahrzeug(int vorlauf) {
 		Fahrzeug fahrzeug;
 		

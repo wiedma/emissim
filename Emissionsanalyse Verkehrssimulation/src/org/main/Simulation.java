@@ -11,44 +11,48 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+/**Stellt alle Methoden zum steuern der Simulation bereit*/
 public final class Simulation {
 	
-	//TODO Simulations-Klasse modellieren
+	//TODO Simulations-Klasse fertig modellieren
 	
-	//Momentane Simulationszeit
+	/**Momentane Simulationszeit*/
 	private static double zeit;
-	//Das Netz der Simulation
+	/**Das Netz der Simulation*/
 	private static Netz netz;
-	//Excel Workbook zum Ablegen der Daten
+	/**Excel Workbook zum Ablegen der Daten*/
 	public static final XSSFWorkbook WORKBOOK = workbookErstellen();
-	//Excel Worksheet zum Ablegen der CO2-Sensordaten
+	/**Excel Worksheet zum Ablegen der CO2-Sensordaten*/
 	public static final XSSFSheet CO2SHEET = WORKBOOK.createSheet();
-	//OutputStrem zum Schreiben in die Excel-Datei
+	/**OutputStrem zum Schreiben in die Excel-Datei*/
 	private static FileOutputStream outputStream;
-	//Die Reihe in der Tabelle, mit die diesem Zeitschritt zugeordnet ist
+	/**Die Reihe in der Tabelle, mit die diesem Zeitschritt zugeordnet ist*/
 	private static XSSFRow currentCO2Row;
 	//Initialisiere die Excel-Tabelle
 	static {
 		init();
 	}
-	//Sammelt den Ausstoß von C02 von allen aktiven Sensoren
+	/**Sammelt den Ausstoß von C02 von allen aktiven Sensoren*/
 	private static double momentanCO2Ausstoß = 0;
 	
 //Getter und Setter ------------------------------------------------------------------------------
-	
+	/**Getter für die Simulationszeit*/
 	public static double zeitGeben() {
 		return zeit;
 	}
 	
+	/**Setter für das Simulationsnetz*/
 	public static void netzSetzen(Netz netz) {
 		Simulation.netz = netz;
 	}
 	
+	/**Getter für die momentan beschriebene Reihe in der Excel-Tabelle*/
 	public static XSSFRow currentRowGeben() {
 		return currentCO2Row;
 	}
 //------------------------------------------------------------------------------------------------
 	
+	/**Führe einen Zeitschritt in der Simulation durch*/
 	public static void zeitschritt() {
 		long millis = System.currentTimeMillis();
 		System.out.println("Fahrzeuge: " + netz.anzahlFahrzeuge());
@@ -70,15 +74,17 @@ public final class Simulation {
 		currentCO2Row = CO2SHEET.createRow(currentCO2Row.getRowNum() + 1);
 	}
 	
+	/**Füge der Simulation ein Fahrzeug hinzu*/
 	public static void fahrzeugHinzufuegen(Fahrzeug fahr) {
 		netz.fahrzeugHinzufuegen(fahr);
 	}
 	
+	/**Entferne ein Fahrzueg aus der Simulation*/
 	public static void fahrzeugEntfernen(Fahrzeug fahr) {
 		netz.fahrzeugEntfernen(fahr);
 	}
 	
-	//ExcelWorkbook erstellen und zuweisen
+	/**ExcelWorkbook erstellen und zuweisen*/
 	private static XSSFWorkbook workbookErstellen() {
 		try {
 			File outputFile = new File("output.xlsx");
@@ -93,12 +99,12 @@ public final class Simulation {
 	}
 	
 	
-	//Schreibt den gesammelten Datensatz auf die Festplatte
+	/**Schreibt den gesammelten Datensatz auf die Festplatte*/
 	public static void beenden() {
 		try {
 			XSSFRow row = CO2SHEET.createRow(currentCO2Row.getRowNum());
 			row.createCell(0).setCellValue("Summe:");
-			row.createCell(1).setCellFormula("SUM($B$1:$B$" + currentCO2Row.getRowNum() + ")/1000");
+			row.createCell(1).setCellFormula("SUM($B$1:$B$" + currentCO2Row.getRowNum() + ")");
 			outputStream = new FileOutputStream(new File("output.xlsx"));
 			WORKBOOK.write(outputStream);
 			WORKBOOK.close();
@@ -109,7 +115,7 @@ public final class Simulation {
 		}
 	}
 	
-	//Mache das Set-Up für die Excel-Tabelle
+	/**Mache das Set-Up für die Excel-Tabelle*/
 	private static void init() {
 		currentCO2Row = CO2SHEET.createRow(0);
 		XSSFCell beschriftungZeit = currentCO2Row.createCell(0);
@@ -121,7 +127,7 @@ public final class Simulation {
 		currentCO2Row = CO2SHEET.createRow(1);
 	}
 	
-	//Sammelt die Emissionen in diesem Zeitschritt von allen aktiven Sensoren ein
+	/**Sammelt die Emissionen in diesem Zeitschritt von allen aktiven Sensoren ein*/
 	public static void sammleCO2Daten(double daten) {
 		momentanCO2Ausstoß+=daten;
 	}

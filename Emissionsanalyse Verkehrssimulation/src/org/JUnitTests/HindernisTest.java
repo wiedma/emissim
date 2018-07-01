@@ -1,7 +1,6 @@
 package org.JUnitTests;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Gerade;
 import org.Streckennetz.Mehrspurbereich;
@@ -12,6 +11,7 @@ import org.Verkehr.PKW;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+/**JUnit Testcase für die Hinderniserkennung*/
 class HindernisTest {
 	//Szenario bei dem die Hindernissuche mit Spiegelung geprüft wird
 	static Gerade gerade1, gerade2, gerade3;

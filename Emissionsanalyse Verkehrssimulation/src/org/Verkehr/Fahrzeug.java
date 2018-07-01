@@ -6,52 +6,43 @@ import org.main.Main;
 
 public abstract class Fahrzeug {
 	
-	//Räumliche Dimensionen des Fahrzeugs in m bzw. m²
-	protected double laenge;
-	protected double breite;
-	protected double hoehe;
-	protected double frontflaeche;
+	/**Räumliche Dimensionen des Fahrzeugs in m bzw. m²*/
+	protected double laenge, breite, hoehe, frontflaeche;
 	
-	//Masse des Fahrzeugs in kg
+	/**Masse des Fahrzeugs in kg*/
 	protected double masse;
 	
-	//Verwendeter Kraftstoff
+	/**Verwendeter Kraftstoff*/
 	protected Kraftstoffe kraftstoff;
 	
-	//Wirkungsgrad des Motors
+	/**Wirkungsgrad des Motors*/
 	protected double wirkungsgrad;
 	
-	//Kennzahlen des Fahrzeugs ohne Einheit
-	protected double rollreibungszahl;
-	protected double luftreibungszahl;
+	/**Kennzahlen des Fahrzeugs ohne Einheit*/
+	protected double rollreibungszahl, luftreibungszahl;
 	
-	//Position als Koordinate im eindimensionalen System
+	/**Position als Koordinate im eindimensionalen System*/
 	protected double pos;
-	//Die Fahrspur auf der sich das Fahrzeug befindet
+	/**Die Fahrspur auf der sich das Fahrzeug befindet*/
 	protected Fahrspur spur;
 	
-	//Momentane Geschwindigkeit in m/s
+	/**Momentane Geschwindigkeit in m/s*/
 	protected double geschwindigkeit;
 	
-	//Momentan gewählter Gang
+	/**Momentan gewählter Gang*/
 	protected int gang;
 	
-	//Momentane Beschleunigung
+	/**Momentane Beschleunigung*/
 	protected double beschleunigung;
 	
-	//CO2-Sensorobjekt des Fahrzeugs
+	/**CO2-Sensorobjekt des Fahrzeugs*/
 	protected CO2Sensor co2sensor;
 	
-	//Strecke, die diesem Fahrzeug zugewiesen wurde
+	/**Strecke, die diesem Fahrzeug zugewiesen wurde*/
 	protected Strecke strecke;
 	
-	//Die Hindernisse in allen 6 Richtungen
-	private Hindernis hinVorne;
-	private Hindernis hinHinten;
-	private Hindernis hinVorneLinks;
-	private Hindernis hinVorneRechts;
-	private Hindernis hinHintenLinks;
-	private Hindernis hinHintenRechts;
+	/**Die Hindernisse in allen 6 Richtungen*/
+	protected Hindernis hinVorne, hinHinten, hinVorneLinks, hinVorneRechts, hinHintenLinks, hinHintenRechts;
 	
 	
 	public Fahrzeug() {
@@ -93,7 +84,7 @@ public abstract class Fahrzeug {
 		
 	}
 	
-	//Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen
+	/**Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen*/
 	public void zeitschritt() {
 		//TODO Hier wieder entfernen, nur zu Testzwecken hier
 		geschwindigkeit = Main.geschwindigkeit/3.6;
@@ -141,14 +132,14 @@ public abstract class Fahrzeug {
 		hinHintenLinks = null;
 	}
 	
-	//Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit
+	/**Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit*/
 	public void beschleunige(double zielgeschwindigkeit) {
 		//a = dv/dt
 		beschleunigung = (geschwindigkeit-zielgeschwindigkeit)/Physics.DELTA_TIME;
 	}
 	
 	
-	//CO₂-Emission des Fahrzeugs in kg/Zeiteinheit
+	/**Berechne die CO₂-Emission des Fahrzeugs in dieser Zeiteinheit in kg*/
 	public double emissionBerechnen() {
 		//Die gefahrene Strecke durch Bewegungsgleichungen berechnen
 		double strecke = Physics.bewege(0, geschwindigkeit, beschleunigung);
@@ -162,7 +153,7 @@ public abstract class Fahrzeug {
 		return kraftstoff.verbrenne(motorOutput);
 	}
 	
-	
+	/**Suche ein Hindernis in der angegebenen Richtung*/
 	public Hindernis hindernisSuchen(HindernisRichtung richtung) {
 		switch(richtung) {
 		case VORNE: return spur.hindernisVorne(this, 0);
@@ -175,6 +166,7 @@ public abstract class Fahrzeug {
 		}
 	}
 	
+	/**Suche nach Hindernis in allen Richtungen*/
 	public void alleHindernisseSuchen() {
 		if(hinVorne == null) {
 			hinVorne = hindernisSuchen(HindernisRichtung.VORNE);
@@ -196,6 +188,7 @@ public abstract class Fahrzeug {
 		}
 	}
 	
+	/**Generiere zufällig die Spezifikationen des Fahrzeuges*/
 	protected abstract double[] generiereFahrzeugSpecs();
 	
 //Getter und Setter -----------------------------------------------------------------------------

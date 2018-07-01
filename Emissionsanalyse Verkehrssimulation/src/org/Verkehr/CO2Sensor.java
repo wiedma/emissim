@@ -1,12 +1,10 @@
 package org.Verkehr;
 
 import org.main.Simulation;
-
+/**Ein Sensor zum Sammeln der Kohlenstoffdioxid-Emissionen des Fahrzeugs*/
 public class CO2Sensor implements Sensor<Double>{
 	
-	//NEXT Datenspeicherung überarbeiten, Excel verwerfen (?)
-	
-	//Auf manchen Strecken wird die Messung unterbunden (z.B. Vorläufe)
+	/**Auf manchen Strecken wird die Messung unterbunden (z.B. Vorläufe)*/
 	private boolean aktiv;
 	
 	public CO2Sensor() {
@@ -14,8 +12,11 @@ public class CO2Sensor implements Sensor<Double>{
 	}
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void schreibeDaten(double daten) {
+	public void schreibeDaten(Double daten) {
 		//Wenn der Sensor aktiviert wurde
 		if(aktiv) {
 			//Lege die gemessenen Daten in der Tabelle ab

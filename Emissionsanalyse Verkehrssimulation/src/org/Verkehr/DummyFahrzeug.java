@@ -1,9 +1,9 @@
 package org.Verkehr;
-
+/**Ein Dummyfahrzeug wird zur Hindernissuche auf benachbarten Fahrspuren genutzt*/
 public class DummyFahrzeug extends Fahrzeug {
-	//Das Fahrzeug für welches dieser Dummy nach Hindernissen sucht
+	/**Das Fahrzeug für welches dieser Dummy nach Hindernissen sucht*/
 	private Fahrzeug original;
-	//Gibt an, ob der Dummy links oder rechts vom Original ist
+	/**Gibt an, ob der Dummy links oder rechts vom Original ist*/
 	private boolean links;
 	//Dummy zur Hinderniserkennung auf benachbarten Spuren
 	public DummyFahrzeug(Fahrzeug original, boolean links) {

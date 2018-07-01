@@ -4,15 +4,16 @@ import org.Verkehr.Fahrzeug;
 import org.Verkehr.Hindernis;
 import org.main.Simulation;
 
+/**Eine Fahrspur ohne räumliche Ausdehnung, welche Fahrzeuge aus der Simulation entfernt*/
 public class Senke extends Fahrspur{
 	
-	//Der Zeitpunkt zu welchem das letzte Fahrzeug entfernt wurde
+	/**Der Zeitpunkt zu welchem das letzte Fahrzeug entfernt wurde*/
 	private double letzteZeit;
-	//Die Geschwindigkeit des Fahrzeugs, welches als letztes entfernt wurde
+	/**Die Geschwindigkeit des Fahrzeugs, welches als letztes entfernt wurde*/
 	private double letzteGeschwindigkeit;
-	//Anzahl der entfernten Fahrzeuge
+	/**Anzahl der entfernten Fahrzeuge*/
 	private static int entfernteFahrzeuge = 0;
-	//Anzahl der Fahrzeuge, die entfernt werden bis der GarbageCollector benachrichtigt wird
+	/**Anzahl der Fahrzeuge, die entfernt werden müssen, bis der GarbageCollector benachrichtigt wird*/
 	public static final int FAHRZEUGE_BIS_GARBAGE_COLLECTION = 1000;
 	
 	
@@ -22,10 +23,13 @@ public class Senke extends Fahrspur{
 		letzteGeschwindigkeit = 0;
 	}
 	
+	/**Gibt die Gesamtanzahl aller an dieser Senke entfernten Fahrzeuge*/
 	public static int anzahlFahrzeugeEntfernt() {
 		return entfernteFahrzeuge;
 	}
 	
+	/**Entfernt das Fahrzeug bei erreichen der Senke aus dem Streckennetz
+	 * @param fahrzeug Das zu entfernende Fahrzeug*/
 	@Override
 	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
 		//Speichere die Zeit des Entfernens und die Geschwindigkeit des Fahrzeugs
@@ -43,8 +47,7 @@ public class Senke extends Fahrspur{
 	}
 	
 	
-	//Senken gaukeln den Fahrzeugen vor das entfernte Fahrzeug würde noch mit konstanter
-	//Geschwindigkeit weiterfahren
+	/**Senken gaukeln den Fahrzeugen vor das entfernte Fahrzeug würde noch mit konstanter Geschwindigkeit weiterfahren*/
 	@Override
 	public Hindernis hindernisVorne(Fahrzeug sucher, double entfernung) {
 		//Jetzige Position des letzten entfernten Fahrzeuges auf der gedachten Fahrspur
@@ -79,6 +82,7 @@ public class Senke extends Fahrspur{
 	}
 	
 	@Override
+	/**Senken müssen beim Zeitschritt selbst nichts machen*/
 	public void zeitschritt() {
 		//Nichts tun
 	}

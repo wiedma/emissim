@@ -1,7 +1,7 @@
 package org.main;
 
 import org.Streckennetz.*;
-
+/**Main Klasse zum starten des Projekts*/
 public class Main {
 	
 	public static final double geschwindigkeit = 100;
@@ -10,6 +10,7 @@ public class Main {
 		beispiel10km();
 	}
 	
+	/**Experiment für die Zwischenpräsentation*/
 	public static void beispiel10km() {
 		Gerade gerade1 = new Gerade(1000, 2, 120, false);
 		Gerade gerade2 = new Gerade(1000, 2, 120, false);

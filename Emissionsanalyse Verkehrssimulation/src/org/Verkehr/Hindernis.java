@@ -1,18 +1,20 @@
 package org.Verkehr;
-
+/**Verwaltet alle Information über ein gefundenes Hindernis.
+ * Hindernis kann ein anderes Fahrzeug, eine Senke oder auch etwa eine Ampel sein
+ */
 public class Hindernis {
 	
-	//Die Entfernung des Betrachters zum Hindernis
+	/**Die Entfernung des Betrachters zum Hindernis*/
 	private double entfernung;
-	//Die Geschwindigkeit, mit der sich das Hindernis bewegt
+	/**Die Geschwindigkeit, mit der sich das Hindernis bewegt*/
 	private double geschwindigkeit;
-	//Das Objekt, welches das Hindernis darstellt
+	/**Das Objekt, welches das Hindernis darstellt*/
 	private Object typ;
-	//Der Betrachter dieses Hindernisses
+	/**Der Betrachter dieses Hindernisses*/
 	private Fahrzeug betrachter;
-	//Liegt das Hindernis in Fahrtrichtung?
+	/**Liegt das Hindernis in Fahrtrichtung?*/
 	private boolean inFahrtrichtung;
-	//Befinden sich Hindernis und Betrachter auf der selben Fahrspur?
+	/**Befinden sich Hindernis und Betrachter auf der selben Fahrspur?*/
 	private boolean gleicheSpur;
 	
 	public Hindernis(double entfernung, double geschwindigkeit, Object typ, Fahrzeug betrachter,
@@ -45,8 +47,9 @@ public class Hindernis {
 	
 //-------------------------------------------------------------------------------------------------
 	
-	//Zeit bis zur Kollision bei weiterer gleichförmiger Bewegung
-	//Gibt -1, wenn keine Kollision stattfinden würde
+	/**Zeit bis zur Kollision bei weiterer gleichförmiger Bewegung
+	 * @return Die Zeit, die bis zur Kollision verbleibt. Findet keine Kollision statt ist das Ergebnis -1
+	 */
 	public double kollisionszeit() {
 		double geschwindigkeitBetrachter = betrachter.geschwindigkeitGeben();
 		//Wenn eine Kollision ausgeschlossen ist

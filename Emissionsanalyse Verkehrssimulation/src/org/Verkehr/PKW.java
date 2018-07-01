@@ -1,13 +1,22 @@
 package org.Verkehr;
 
 import org.PhysicEngine.Physics;
-
+/**PKWs sind spezielle Fahrzeuge*/
 public class PKW extends Fahrzeug {
 	
 	public PKW() {
 		super();
 	}
 
+	/**Generiere zufällig die Fahrzeugspezifikationen
+	 * Längenverteilung nach [ER07]
+	 * Breitenverteilung nach [ER07]
+	 * Höhenverteilung nach eigener Abschätzung
+	 * Massenverteilung nach [FO13], Standartabweichung nach eigener Abschätzung
+	 * Verteilung der Kraftstoffarten nach [KR17]
+	 * Rollreibungszahl nach [BO98]
+	 * Luftreibungszahl nach [BO98]
+	 */
 	@Override
 	protected double[] generiereFahrzeugSpecs() {
 		

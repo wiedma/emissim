@@ -17,7 +17,7 @@ public abstract class Fahrspur implements Datenelement {
 	/**Gibt an, ob man diese Fahrspur befahren kann*/
 	protected boolean befahrbar;
 	
-	/**Das Tempolimit*/
+	/**Das Tempolimit in km/h*/
 	protected double maxGeschwindigkeit;
 	
 	/**Räumliche Ausdehnung*/

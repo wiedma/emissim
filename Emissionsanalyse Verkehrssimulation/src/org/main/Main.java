@@ -7,7 +7,7 @@ public class Main {
 	public static final double geschwindigkeit = 100;
 
 	public static void main(String[] args) {
-		beispiel10km();
+//		beispiel10km();
 	}
 	
 	/**Experiment für die Zwischenpräsentation*/

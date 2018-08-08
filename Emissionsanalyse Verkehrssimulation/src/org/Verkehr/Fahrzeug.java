@@ -2,6 +2,7 @@ package org.Verkehr;
 import org.PhysicEngine.*;
 import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
+import org.Verhalten.Fahrverhalten;
 import org.main.Main;
 
 public abstract class Fahrzeug {
@@ -43,7 +44,8 @@ public abstract class Fahrzeug {
 	
 	/**Die Hindernisse in allen 6 Richtungen*/
 	protected Hindernis hinVorne, hinHinten, hinVorneLinks, hinVorneRechts, hinHintenLinks, hinHintenRechts;
-	
+	/**Das Konkrete Fahrverhalten dieses Fahrzeuges*/
+	protected Fahrverhalten verhalten;
 	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
@@ -86,42 +88,20 @@ public abstract class Fahrzeug {
 	
 	/**Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen*/
 	public void zeitschritt() {
-		//TODO Hier wieder entfernen, nur zu Testzwecken hier
-		geschwindigkeit = Main.geschwindigkeit/3.6;
+		//Bestimme alle Hindernisse in der Umgebung
 		alleHindernisseSuchen();
-//----------------------------------------------------------------------------------------
-		//Alte Position
-		double posAlt = pos;
+		
+		//Bestimme die neue Beschleunigung des Fahrzeuges
+		beschleunigung = verhalten.beschleunigungBestimmen();
 		
 		//Neue Position
 		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
 		
-		//Benötigte Energie
-		
-		//Gefahrene Strecke
-		double s = pos - posAlt;
-		
-		//Rollreibungskraft
-		double fr = Physics.rollreibung(rollreibungszahl, masse);
-		
-		//Luftreibung
-		double fl = Physics.luftreibung(luftreibungszahl, frontflaeche, geschwindigkeit);
-		
-		//Beschleunigungswiderstand
-		double fb = Physics.beschleunigungswiderstand(masse, beschleunigung, gang);
-		
-		//Energie = Kraft * Weg (* 1/wirkungsgrad)
-		double energie = s * (fr + fl + fb) * (1/wirkungsgrad);
-		
 		//Emissionsdaten sammeln und speichern
-		co2sensor.schreibeDaten(kraftstoff.verbrenne(energie));
+		co2sensor.schreibeDaten(emissionBerechnen());
 		
 		//Neue Geschwindigkeit
 		geschwindigkeit = geschwindigkeit + (beschleunigung * Physics.DELTA_TIME);
-		
-		
-		//Nach der Zeiteinheit wird die Beschleunigung zurückgesetzt
-		beschleunigung = 0;
 		
 		//Setze die Hindernisse wieder auf null
 		hinVorne = null;
@@ -132,11 +112,11 @@ public abstract class Fahrzeug {
 		hinHintenLinks = null;
 	}
 	
-	/**Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit*/
-	public void beschleunige(double zielgeschwindigkeit) {
-		//a = dv/dt
-		beschleunigung = (geschwindigkeit-zielgeschwindigkeit)/Physics.DELTA_TIME;
-	}
+//	/**Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit*/
+//	public void beschleunige(double zielgeschwindigkeit) {
+//		//a = dv/dt
+//		beschleunigung = (geschwindigkeit-zielgeschwindigkeit)/Physics.DELTA_TIME;
+//	}
 	
 	
 	/**Berechne die CO₂-Emission des Fahrzeugs in dieser Zeiteinheit in kg*/
@@ -219,6 +199,10 @@ public abstract class Fahrzeug {
 	
 	public double geschwindigkeitGeben() {
 		return geschwindigkeit;
+	}
+	
+	public double beschleunigungGeben() {
+		return beschleunigung;
 	}
 	
 	public void streckeSetzen(Strecke strecke) {

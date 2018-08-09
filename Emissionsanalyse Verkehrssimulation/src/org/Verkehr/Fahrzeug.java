@@ -3,7 +3,6 @@ import org.PhysicEngine.*;
 import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
 import org.Verhalten.Fahrverhalten;
-import org.main.Main;
 
 public abstract class Fahrzeug {
 	
@@ -46,6 +45,8 @@ public abstract class Fahrzeug {
 	protected Hindernis hinVorne, hinHinten, hinVorneLinks, hinVorneRechts, hinHintenLinks, hinHintenRechts;
 	/**Das Konkrete Fahrverhalten dieses Fahrzeuges*/
 	protected Fahrverhalten verhalten;
+	/**Beschreibt, ob das Fahrzeug in einem Unfall verwickelt ist und deshalb stehen bleiben soll*/
+	protected boolean unfall;
 	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
@@ -84,10 +85,18 @@ public abstract class Fahrzeug {
 			co2sensor = new CO2Sensor();
 		}
 		
+		unfall = false;	
+		
 	}
 	
 	/**Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen*/
 	public void zeitschritt() {
+		//Wenn ein Unfall passiert ist
+		if(unfall) {
+			//Bleibe stehen
+			return;
+		}
+		
 		//Bestimme alle Hindernisse in der Umgebung
 		alleHindernisseSuchen();
 		
@@ -110,6 +119,13 @@ public abstract class Fahrzeug {
 		hinHintenRechts = null;
 		hinVorneLinks = null;
 		hinHintenLinks = null;
+		
+	}
+	
+	public void unfall() {
+		this.geschwindigkeit = 0;
+		this.beschleunigung = 0;
+		unfall = true;
 	}
 	
 //	/**Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit*/
@@ -197,8 +213,16 @@ public abstract class Fahrzeug {
 		this.spur = spur;
 	}
 	
+	public void verhaltenSetzen(Fahrverhalten verhalten) {
+		this.verhalten = verhalten;
+	}
+	
 	public double geschwindigkeitGeben() {
 		return geschwindigkeit;
+	}
+	
+	public void geschwindigkeitSetzen(double geschwindigkeit) {
+		this.geschwindigkeit = geschwindigkeit;
 	}
 	
 	public double beschleunigungGeben() {
@@ -240,6 +264,10 @@ public abstract class Fahrzeug {
 		case HINTEN_RECHTS: return hinHintenRechts;
 		default: return null;
 		}
+	}
+	
+	public void tempolimitAktualisieren(double tempolimitNeu) {
+		verhalten.tempolimitAktualisieren(tempolimitNeu);
 	}
 //------------------------------------------------------------------------------------------------
 }

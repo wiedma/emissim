@@ -8,8 +8,8 @@ import org.main.Simulation;
  */
 public class Vorlauf extends Gerade {
 	
-	public Vorlauf(double laenge) {
-		super(laenge, 2, 500, false);
+	public Vorlauf(double laenge, double tempolimit) {
+		super(laenge, 2, 200, false);
 	}
 	
 	/**Übergibt das Fahrzeug an die nachfolgende Fahrspur und aktiviert den Sensor des Fahrzeugs

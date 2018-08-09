@@ -70,4 +70,8 @@ public class Hindernis {
 		return entfernung/differenz;
 	}
 	
+	public double geschwindigkeitGeben() {
+		return geschwindigkeit;
+	}
+	
 }

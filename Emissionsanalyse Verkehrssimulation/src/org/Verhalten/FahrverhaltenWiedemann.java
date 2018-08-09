@@ -84,6 +84,11 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	private double bnull;
 	
 	/**
+	 * Gibt an, ob das Fahrzeug aufgrund eines Unfalls zum stehen kommen soll
+	 */
+	private boolean unfall;
+	
+	/**
 	 * Erzeugt ein neues Fahrverhalten nach Wiedemann mit den entsprechenden Parametern
 	 * @param f Das Fahrzeug, das dieses Fahrverhalten anwenden soll
 	 */
@@ -98,6 +103,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
 		bnull = 0.2 * (gaspedalkontrolle + Physics.normalverteilung(0.5, 0.15));
 		this.f = f;
+		unfall = false;
 	}
 
 	@Override
@@ -107,12 +113,17 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	 * @return Die neue Beschleunigung
 	 */
 	public double beschleunigungBestimmen() {
+		
+		if(unfall) {
+			return 0;
+		}
+		
 		Fahrzeug vordermann;
 		Hindernis vorne;
 		try {
 			vorne = f.hindernisGeben(HindernisRichtung.VORNE);
 			vordermann = vorne.zielFahrzeug();
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			return wunsch();
 		}
 		
@@ -226,8 +237,40 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	 * @return Beschleunigung, die das Fahrzeug in diesem Zeitschritt anwenden soll
 	 */
 	private double bremsax() {
-		//TODO Prozedur BREMSAX implementieren
-		return 0;
+		r += 1;
+		double bmin;
+		if(f instanceof PKW) {
+			bmin = -8 - 2 * beschleunigungswille + 0.5 * Math.sqrt(f.geschwindigkeitGeben());
+		}
+		else {
+			bmin = -6 - 2 * beschleunigungswille + 0.09 * f.geschwindigkeitGeben();
+		}
+		
+		double beschleunigungVordermann = f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().beschleunigungGeben();
+		
+		double beschleunigungObjektiv = 0.5 * ((dv * dv)/(ax - dx)) + beschleunigungVordermann + bmin * 
+				((bx - dx)/(bx - ax));
+		
+		double schaetzfehler = (1 - schaetzvermoegen) * ((1 - 2 * Physics.normalverteilung(0.5, 0.15))/r);
+		
+		double beschleunigungSubjektiv = beschleunigungObjektiv + beschleunigungObjektiv * schaetzfehler;
+		
+		//Untere Schwelle der Gaspedalkontrolle
+		if(beschleunigungSubjektiv > -bnull) {
+			beschleunigungSubjektiv = -bnull;
+		}
+		
+		//Maximale Bremsfähigkeit des Fahrzeuges
+		if(beschleunigungSubjektiv < bmin) {
+			beschleunigungSubjektiv = bmin;
+		}
+		
+		//Unfall
+		if(dx < (f.laengeGeben()/2.0) + (f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().laengeGeben()/2.0)) {
+			unfall();
+		}
+		
+		return beschleunigungSubjektiv;
 	}
 	
 	/**
@@ -243,7 +286,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 		double schaetzfehler = (1 - schaetzvermoegen) * ((1 - 2 * Physics.normalverteilung(0.5, 0.15))/r);
 		
-		double beschleunigungSubjektiv = beschleunigungObjektiv * schaetzfehler;
+		double beschleunigungSubjektiv = beschleunigungObjektiv + beschleunigungObjektiv * schaetzfehler;
 		
 		double bmin;
 		if(f instanceof PKW) {
@@ -271,8 +314,35 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	 * @return Beschleunigung, die das Fahrzeug in diesem Zeitschritt anwenden soll
 	 */
 	private double folgen() {
-		//TODO Prozedur FOLGEN implementieren
-		return 0;
+		double beschleunigung;
+		if(f.beschleunigungGeben() > 0) {
+			beschleunigung = bnull;
+		}
+		else {
+			beschleunigung = -bnull;
+		}
+		
+		Fahrzeug vordermann, vorvordermann;
+		try {
+			vordermann = f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug();
+			vorvordermann = vordermann.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug();
+		} catch (NullPointerException e) {
+			return beschleunigung;
+		}
+		
+		double br = -0.5 - 1.5 * beschleunigungswille;
+		
+		if(vordermann.hindernisGeben(HindernisRichtung.VORNE).entfernungGeben() < bx) {
+			if(Math.abs(vorvordermann.beschleunigungGeben()) > br) {
+				r+=1;
+			}
+			else {
+				r = 0;
+			}
+		}
+		
+		return beschleunigung;
+		
 	}
 	
 	/**
@@ -282,15 +352,50 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	private double wunsch() {
 		r = 0;
 		
-		double bmax;
+		//Berechne Bmin und Bmax
+		double bmax, bmin;
 		if(f instanceof PKW) {
 			bmax = (0.2 + 0.8 * beschleunigungswille) * (7 - Math.sqrt(f.geschwindigkeitGeben()));
+			bmin = -8 - 2 * beschleunigungswille + 0.5 * Math.sqrt(f.geschwindigkeitGeben());
 		}
 		else {
 			bmax = 1.581 - 0.057 * f.geschwindigkeitGeben() + (0.6 - 0.01 * f.geschwindigkeitGeben()) * beschleunigungswille;
+			bmin = -6 - 2 * beschleunigungswille + 0.09 * f.geschwindigkeitGeben();
 		}
 		
-		return bmax * ((dx - bx)/bx);
+		//Wunschbeschleunigung führt zur Wunschgeschwindigkeit innnerhalb dieser Zeiteinheit
+		double beschleunigungWunsch = (wunschgeschwindigkeit - f.geschwindigkeitGeben())/Physics.DELTA_TIME;
+		
+		//Obere Grenze für die Beschleunigung
+		if(beschleunigungWunsch > bmax) {
+			beschleunigungWunsch = bmax;
+		}
+		//Obere Grenze für den Bremsvorgang
+		else if(beschleunigungWunsch < bmin) {
+			beschleunigungWunsch = bmin;
+		}
+		//Untere Grenze der Gaspedalkontrolle
+		else if(Math.abs(beschleunigungWunsch) < bnull) {
+			beschleunigungWunsch = (beschleunigungWunsch > 0) ? bnull : -bnull;
+		}
+		
+		//Wenn kein Vordermann existiert, oder dieser zu weit entfernt ist
+		if(dx == 0 || dx > 2 * bx) {
+			return beschleunigungWunsch;
+		}
+		
+		return beschleunigungWunsch * ((dx - bx)/bx);
+	}
+	
+	/**
+	 * Entspricht der Prozedur UNFALL. Eine Kollision zwischen zwei Fahrzeugen.
+	 * Ihre Geschwindigkeiten werden auf 0 gesetzt und die Fahrzeuge kommen zum Stillstand.
+	 */
+	private void unfall() {
+		f.unfall();
+		f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().unfall();
+		System.out.println("UNFALL");
+		System.exit(1);
 	}
 
 }

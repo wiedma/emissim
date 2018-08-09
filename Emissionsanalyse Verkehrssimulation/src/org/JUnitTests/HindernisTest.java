@@ -65,7 +65,7 @@ class HindernisTest {
 		
 		Senke senke = new Senke();
 		@SuppressWarnings("unused")
-		Quelle quelle = new Quelle(mehr, 0);
+		Quelle quelle = new Quelle(mehr, 0, 200);
 		
 		Fahrspur.verbinde(gerade1, senke);
 		

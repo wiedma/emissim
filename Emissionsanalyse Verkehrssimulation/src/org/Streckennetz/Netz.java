@@ -45,9 +45,14 @@ public class Netz {
 	
 	/**Gibt das Signal der Simulation an alle Fahrspuren im Netz weiter*/
 	public void zeitschritt() {
-		//TODO in zeitschritt() durch alle Fahrzeuge iterieren und Verhalten berechnen
 		for(Fahrspur spur : spuren) {
 			spur.zeitschritt();
+		}
+	}
+	
+	public void tempolimitSetzen(double tempolimit) {
+		for(Fahrspur spur : spuren) {
+			spur.maxGeschwindigkeitSetzen(tempolimit);
 		}
 	}
 	

@@ -70,7 +70,7 @@ public final class Physics {
 		double x = u * p;
 		
 		//Lineare Transformation zu beliebig normalverteilten Zufallszahlen
-		return Math.sqrt(standartabweichung) * x + erwartungswert;
+		return standartabweichung * x + erwartungswert;
 	}
 
 }

@@ -2,6 +2,8 @@ package org.Streckennetz;
 
 import java.util.ArrayList;
 import org.Graphen.*;
+import org.PhysicEngine.Physics;
+import org.Verhalten.FahrverhaltenWiedemann;
 import org.Verkehr.*;
 import org.main.Simulation;
 /**Quellen sind Fahrspuren ohne räumliche Ausdehnung, welche Fahrzeuge erzeugen*/
@@ -25,9 +27,9 @@ public class Quelle extends Fahrspur {
 	/**Die Gesamtanzahl erzeugter Fahrzeuge*/
 	private static int fahrzeugeErzeugt;
 	
-	public Quelle(Fahrspur einfahrt, double lkwAnteil){
+	public Quelle(Fahrspur einfahrt, double lkwAnteil, double tempolimit){
 		//Rufe den Konstruktor der Oberklasse auf
-		super(0,0,0,false);
+		super(0,0,tempolimit,false);
 		
 		this.lkwAnteil = lkwAnteil;
 		
@@ -37,7 +39,7 @@ public class Quelle extends Fahrspur {
 		rueckstau = new int[1];
 		vorlaeufe = new Vorlauf[1];
 		//Erstelle den Vorlauf mit Länge 1000m (vgl. [ER07] S.37f)
-		vorlaeufe[0] = new Vorlauf(1000);
+		vorlaeufe[0] = new Vorlauf(1000, tempolimit);
 		//Verbinde den Vorlauf mit seinem Nachfolger
 		Fahrspur.verbinde(vorlaeufe[0], einfahrt);
 		//Verbinde den Verlauf hinten mit der Quelle
@@ -49,10 +51,10 @@ public class Quelle extends Fahrspur {
 		
 	}
 	
-	public Quelle(Mehrspurbereich einfahrten, double lkwAnteil) {
+	public Quelle(Mehrspurbereich einfahrten, double lkwAnteil, double tempolimit) {
 		
 		//Rufe den Konstruktor der Oberklasse auf
-		super(0,0,0,false);
+		super(0,0,tempolimit,false);
 		
 		this.lkwAnteil = lkwAnteil;
 		
@@ -68,7 +70,7 @@ public class Quelle extends Fahrspur {
 		* Fahrspuren */
 		double vorlaufLaenge = Math.max(1000, anzahl * 500);
 		for(int i = 0; i < anzahl; i++) {
-			vorlaeufe[i] = new Vorlauf(vorlaufLaenge);
+			vorlaeufe[i] = new Vorlauf(vorlaufLaenge, tempolimit);
 			//Verbinde die Vorläufe mit ihren Einfahrten
 			Fahrspur.verbinde(vorlaeufe[i], einfahrten.fahrspurGeben(i));
 			//Verbinde den Verlauf hinten mit der Quelle
@@ -178,8 +180,27 @@ public class Quelle extends Fahrspur {
 		
 		/*TODO Erst prüfen, ob Sicherheitsabstand zum nächsten Fahrzeug größer ist,
 		* als BX des Fahrers. Weise dem neu aufgesetzten Fahrzeug eine Startgeschwindigkeit zu*/
+		
 		vorlaeufe[vorlauf].fahrzeugHinzufuegen(fahrzeug);
 		fahrzeug.spurSetzen(vorlaeufe[vorlauf]);
+		fahrzeug.geschwindigkeitSetzen(vorlaeufe[vorlauf].maxGeschwindigkeitGeben()/3.6);
+		
+		Hindernis h = fahrzeug.hindernisSuchen(HindernisRichtung.VORNE);
+		
+		if(h != null) {
+			fahrzeug.geschwindigkeitSetzen(h.geschwindigkeitGeben());
+			double zfn = Physics.normalverteilung(0.5, 0.15);
+			//Wenn der Abstand zu gering ist
+			if(5.5 + 2 * zfn + (1 + 7 * zfn) * Math.sqrt(fahrzeug.geschwindigkeitGeben()) > h.entfernungGeben()) {
+				//Erzeuge das Fahrzeug noch nicht
+				vorlaeufe[vorlauf].fahrzeugEntfernen(fahrzeug);
+				fahrzeug.spurSetzen(null);
+				return false;
+			}
+		}
+		
+		fahrzeug.verhaltenSetzen(new FahrverhaltenWiedemann(fahrzeug));
+		
 		//Nur ausführen, wenn Erzeugung erfolgreich ist
 		rueckstau[vorlauf] -= 1;
 		letzteZeit[vorlauf] = Simulation.zeitGeben();
@@ -246,4 +267,11 @@ public class Quelle extends Fahrspur {
 		return null;
 	}
 
+	@Override
+	public void maxGeschwindigkeitSetzen(double maxGeschwindigkeit) {
+		this.maxGeschwindigkeit = maxGeschwindigkeit;
+		for(Vorlauf vor : vorlaeufe) {
+			vor.maxGeschwindigkeitSetzen(maxGeschwindigkeit);
+		}
+	}
 }

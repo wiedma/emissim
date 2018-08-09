@@ -4,34 +4,34 @@ import org.Streckennetz.*;
 /**Main Klasse zum starten des Projekts*/
 public class Main {
 	
-	public static final double geschwindigkeit = 100;
+	public static final double tempolimit = 100;
 
 	public static void main(String[] args) {
-//		beispiel10km();
+		beispiel10km();
 	}
 	
 	/**Experiment für die Zwischenpräsentation*/
 	public static void beispiel10km() {
-		Gerade gerade1 = new Gerade(1000, 2, 120, false);
-		Gerade gerade2 = new Gerade(1000, 2, 120, false);
-		Gerade gerade3 = new Gerade(1000, 2, 120, false);
-		Gerade gerade4 = new Gerade(1000, 2, 120, false);
-		Gerade gerade5 = new Gerade(1000, 2, 120, false);
-		Gerade gerade6 = new Gerade(1000, 2, 120, false);
-		Gerade gerade7 = new Gerade(1000, 2, 120, false);
-		Gerade gerade8 = new Gerade(1000, 2, 120, false);
-		Gerade gerade9 = new Gerade(1000, 2, 120, false);
-		Gerade gerade10 = new Gerade(1000, 2, 120, false);
-		Gerade gerade11 = new Gerade(1000, 2, 120, false);
-		Gerade gerade12 = new Gerade(1000, 2, 120, false);
-		Gerade gerade13 = new Gerade(1000, 2, 120, false);
-		Gerade gerade14 = new Gerade(1000, 2, 120, false);
-		Gerade gerade15 = new Gerade(1000, 2, 120, false);
-		Gerade gerade16 = new Gerade(1000, 2, 120, false);
-		Gerade gerade17 = new Gerade(1000, 2, 120, false);
-		Gerade gerade18 = new Gerade(1000, 2, 120, false);
-		Gerade gerade19 = new Gerade(1000, 2, 120, false);
-		Gerade gerade20 = new Gerade(1000, 2, 120, false);
+		Gerade gerade1 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade2 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade3 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade4 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade5 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade6 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade7 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade8 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade9 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade10 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade11 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade12 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade13 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade14 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade15 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade16 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade17 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade18 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade19 = new Gerade(1000, 2, tempolimit, false);
+		Gerade gerade20 = new Gerade(1000, 2, tempolimit, false);
 		
 		
 		Senke autobahnEnde = new Senke();
@@ -79,7 +79,7 @@ public class Main {
 		Mehrspurbereich autobahn10 = new Mehrspurbereich(gerade10);
 		autobahn10.fahrspurHinzufuegen(gerade20, gerade10, true);
 		
-		Quelle autobahnBeginn = new Quelle(autobahn1, 0.1);
+		Quelle autobahnBeginn = new Quelle(autobahn1, 0.1, tempolimit);
 		
 		Fahrspur[] spuren = new Fahrspur[22];
 		
@@ -114,7 +114,8 @@ public class Main {
 		
 		while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
 			Simulation.zeitschritt();
-			if(Quelle.fahrzeugeErzeugt() > 500) {
+			System.out.println("GESAMT: " + Quelle.fahrzeugeErzeugt());
+			if(Quelle.fahrzeugeErzeugt() >= 500) {
 				autobahnBeginn.aktivSetzen(false);
 			}
 		}

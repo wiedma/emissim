@@ -14,8 +14,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 /**Stellt alle Methoden zum steuern der Simulation bereit*/
 public final class Simulation {
 	
-	//TODO Simulations-Klasse fertig modellieren
-	
 	/**Momentane Simulationszeit*/
 	private static double zeit;
 	/**Das Netz der Simulation*/

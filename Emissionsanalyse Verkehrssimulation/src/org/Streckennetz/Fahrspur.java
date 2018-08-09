@@ -152,6 +152,7 @@ public abstract class Fahrspur implements Datenelement {
 		//Referenzen des Fahrzeugs neu setzen
 		fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
 		fahrzeug.spurSetzen(naechsteFahrspur);
+		fahrzeug.tempolimitAktualisieren(naechsteFahrspur.maxGeschwindigkeitGeben());
 		
 		//Referenzen der Spuren neu setzen
 		naechsteFahrspur.fahrzeugHinzufuegen(fahrzeug);
@@ -237,7 +238,6 @@ public abstract class Fahrspur implements Datenelement {
 	
 //Hinderniserkennung -----------------------------------------------------------------------------
 	/*TODO Hinderniserkennung komplett überarbeiten. Mehr mit Variablen arbeiten, Code reduzieren
-	 * und Entfernungsberechnung auf Mittelpunkte beziehen
 	 */
 	/**Suche nach dem ersten Hindernis vor dem Fahrzeug in der Entfernung von 1km
 	*@param entfernung Die von der vorherigen Spur bereits abgesuchte Entfernung

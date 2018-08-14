@@ -178,9 +178,6 @@ public class Quelle extends Fahrspur {
 			}
 		}
 		
-		/*TODO Erst prüfen, ob Sicherheitsabstand zum nächsten Fahrzeug größer ist,
-		* als BX des Fahrers. Weise dem neu aufgesetzten Fahrzeug eine Startgeschwindigkeit zu*/
-		
 		vorlaeufe[vorlauf].fahrzeugHinzufuegen(fahrzeug);
 		fahrzeug.spurSetzen(vorlaeufe[vorlauf]);
 		fahrzeug.geschwindigkeitSetzen(vorlaeufe[vorlauf].maxGeschwindigkeitGeben()/3.6);

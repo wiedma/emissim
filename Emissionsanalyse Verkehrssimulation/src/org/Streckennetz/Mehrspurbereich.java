@@ -62,7 +62,6 @@ public class Mehrspurbereich {
 		neueSpur.mehrspurbereich = this;
 	}
 	
-	//TODO fahrspurEntfernen() testen
 	/**Entfernt eine Fahrspur und räumt alle Referenzen auf*/
 	public void fahrspurEntfernen(Fahrspur spur){
 		fahrspuren.remove(spur);

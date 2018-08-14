@@ -4,7 +4,7 @@ import org.Streckennetz.*;
 /**Main Klasse zum starten des Projekts*/
 public class Main {
 	
-	public static final double tempolimit = 100;
+	public static final double tempolimit = 200;
 
 	public static void main(String[] args) {
 		beispiel10km();

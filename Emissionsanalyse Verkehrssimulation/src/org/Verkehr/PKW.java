@@ -48,7 +48,6 @@ public class PKW extends Fahrzeug {
 		//Luftreibungszahl nach [BO98]
 		double luftreibung = (Math.random() + 3)/10;
 		
-		
 		return new double [] {laenge, breite, hoehe, masse, kraftstoff, rollreibung, luftreibung};
 	}
 

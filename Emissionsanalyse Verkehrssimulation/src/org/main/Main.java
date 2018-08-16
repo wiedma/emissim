@@ -4,7 +4,7 @@ import org.Streckennetz.*;
 /**Main Klasse zum starten des Projekts*/
 public class Main {
 	
-	public static final double tempolimit = 200;
+	public static final double tempolimit = 50;
 
 	public static void main(String[] args) {
 		beispiel10km();
@@ -108,6 +108,7 @@ public class Main {
 		
 		Netz netz = new Netz(spuren);
 		autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(2200);
+		netz.tempolimitSetzen(tempolimit);
 		
 		Simulation.netzSetzen(netz);
 		

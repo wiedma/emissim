@@ -2,8 +2,7 @@ package org.Streckennetz;
 
 import java.util.ArrayList;
 import org.Graphen.*;
-import org.PhysicEngine.Physics;
-import org.Verhalten.FahrverhaltenWiedemann;
+import org.Verhalten.*;
 import org.Verkehr.*;
 import org.main.Simulation;
 /**Quellen sind Fahrspuren ohne räumliche Ausdehnung, welche Fahrzeuge erzeugen*/
@@ -120,6 +119,8 @@ public class Quelle extends Fahrspur {
 			if((Simulation.zeitGeben() - letzteZeit[i]) >= zeitluecke[i] && aktiv) {
 				//Setze ein Fahrzeug in den Rückstau
 				rueckstau[i] += 1;
+				letzteZeit[i] = Simulation.zeitGeben();
+				fahrzeugeErzeugt++;
 			}
 		}
 		
@@ -186,9 +187,11 @@ public class Quelle extends Fahrspur {
 		
 		if(h != null) {
 			fahrzeug.geschwindigkeitSetzen(h.geschwindigkeitGeben());
-			double zfn = Physics.normalverteilung(0.5, 0.15);
+			double sicherheitsbeduerfnis = fahrzeug.sicherheitsbeduerfnisGeben();
+			double ax = h.zielFahrzeug().laengeGeben() + 1 + 2 * sicherheitsbeduerfnis;
+			double bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(h.geschwindigkeitGeben());
 			//Wenn der Abstand zu gering ist
-			if(5.5 + 2 * zfn + (1 + 7 * zfn) * Math.sqrt(fahrzeug.geschwindigkeitGeben()) > h.entfernungGeben()) {
+			if(h.entfernungGeben() < bx) {
 				//Erzeuge das Fahrzeug noch nicht
 				vorlaeufe[vorlauf].fahrzeugEntfernen(fahrzeug);
 				fahrzeug.spurSetzen(null);
@@ -196,12 +199,14 @@ public class Quelle extends Fahrspur {
 			}
 		}
 		
-		fahrzeug.verhaltenSetzen(new FahrverhaltenWiedemann(fahrzeug));
+		//Weise dem Fahrzeug eine Verhaltensklasse zu
+		FahrverhaltenAbsicht verhalten = new FahrverhaltenAbsicht(fahrzeug);
+		verhalten.absichtAnmelden(new AbstandHalten(fahrzeug));
+		fahrzeug.verhaltenSetzen(verhalten);
+//		fahrzeug.verhaltenSetzen(new FahrverhaltenWiedemann(fahrzeug));
 		
 		//Nur ausführen, wenn Erzeugung erfolgreich ist
 		rueckstau[vorlauf] -= 1;
-		letzteZeit[vorlauf] = Simulation.zeitGeben();
-		fahrzeugeErzeugt++;
 		return true;
 	}
 	

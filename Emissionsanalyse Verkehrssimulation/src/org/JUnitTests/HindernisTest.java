@@ -118,28 +118,22 @@ class HindernisTest {
 		
 		//Überprüfung der Distanzmessungen
 		assertEquals(messung.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben(),
-				(vorneLinks.posGeben() - messung.posGeben()) - 
-				(vorneLinks.laengeGeben()/2.0 + messung.laengeGeben()/2.0));
+				(vorneLinks.posGeben() - messung.posGeben()));
 		
 		assertEquals(messung.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben(),
-				(vorneRechts.posGeben() - messung.posGeben()) - 
-				(vorneRechts.laengeGeben()/2.0 + messung.laengeGeben()/2.0));
+				(vorneRechts.posGeben() - messung.posGeben()));
 		
 		assertEquals(messung.hindernisGeben(HindernisRichtung.VORNE).entfernungGeben(),
-				(vorne.posGeben() - messung.posGeben()) - 
-				(vorne.laengeGeben()/2.0 + messung.laengeGeben()/2.0));
+				(vorne.posGeben() - messung.posGeben()));
 		
 		assertEquals(messung.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben(),
-				(hintenLinks.posGeben() - messung.posGeben()) + 
-				(hintenLinks.laengeGeben()/2.0 + messung.laengeGeben()/2.0));
+				(hintenLinks.posGeben() - messung.posGeben()));
 		
 		assertEquals(messung.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben(),
-				(hintenRechts.posGeben() - messung.posGeben()) + 
-				(hintenRechts.laengeGeben()/2.0 + messung.laengeGeben()/2.0));
+				(hintenRechts.posGeben() - messung.posGeben()));
 		
 		assertEquals(messung.hindernisGeben(HindernisRichtung.HINTEN).entfernungGeben(),
-				(hinten.posGeben() - messung.posGeben()) + 
-				(hinten.laengeGeben()/2.0 + messung.laengeGeben()/2.0));
+				(hinten.posGeben() - messung.posGeben()));
 	}
 
 }

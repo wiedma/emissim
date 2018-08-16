@@ -92,10 +92,10 @@ public class AbstandHalten extends Absicht {
 		//Erzeugung der Zufallszahlen ZF0 bis ZF4
 		double tempolimit = fahrzeug.spurGeben().maxGeschwindigkeitGeben();
 		tempolimitAktualisieren(tempolimit);
-		sicherheitsbeduerfnis = Physics.normalverteilung(0.5, 0.15);
-		schaetzvermoegen = Physics.normalverteilung(0.5, 0.15);
-		beschleunigungswille = Physics.normalverteilung(0.5, 0.15);
-		gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
+		sicherheitsbeduerfnis = f.sicherheitsbeduerfnisGeben();
+		schaetzvermoegen = f.schaetzvermoegenGeben();
+		beschleunigungswille = f.beschleunigungswilleGeben();
+		gaspedalkontrolle = f.gaspedalkontrolleGeben();
 		bnull = 0.2 * (gaspedalkontrolle + Physics.normalverteilung(0.5, 0.15));
 		unfall = false;
 	}
@@ -205,7 +205,7 @@ public class AbstandHalten extends Absicht {
 		dx = vorne.entfernungGeben();
 		dv = fahrzeug.geschwindigkeitGeben() - vordermann.geschwindigkeitGeben();
 				
-		ax = 5.5 + 2 * sicherheitsbeduerfnis;
+		ax = vordermann.laengeGeben() + 1 + 2 * sicherheitsbeduerfnis;
 		
 		double bxGeschwindigkeit = (fahrzeug.hindernisGeben(HindernisRichtung.VORNE).kollisionszeit() > 0) ? fahrzeug.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
 		bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit);
@@ -269,14 +269,15 @@ public class AbstandHalten extends Absicht {
 		double beschleunigungSubjektiv = beschleunigungObjektiv + beschleunigungObjektiv * schaetzfehler;
 		
 		//Untere Schwelle der Gaspedalkontrolle
-		if(beschleunigungSubjektiv > -bnull) {
-			beschleunigungSubjektiv = -bnull;
+		if(Math.abs(beschleunigungSubjektiv) < Math.abs(bnull)) {
+			beschleunigungSubjektiv = Math.signum(beschleunigungSubjektiv) * bnull;
 		}
 		
 		//Maximale Bremsfähigkeit des Fahrzeuges
 		if(beschleunigungSubjektiv < bmin) {
 			beschleunigungSubjektiv = bmin;
 		}
+		
 		
 		//Unfall
 		if(dx < (fahrzeug.laengeGeben()/2.0) + (fahrzeug.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().laengeGeben()/2.0)) {
@@ -310,8 +311,8 @@ public class AbstandHalten extends Absicht {
 		}
 		
 		//Untere Schwelle der Gaspedalkontrolle
-		if(beschleunigungSubjektiv > -bnull) {
-			beschleunigungSubjektiv = -bnull;
+		if(Math.abs(beschleunigungSubjektiv) < Math.abs(bnull)) {
+			beschleunigungSubjektiv = Math.signum(beschleunigungSubjektiv) * bnull;
 		}
 		
 		//Maximale Bremsfähigkeit des Fahrzeuges

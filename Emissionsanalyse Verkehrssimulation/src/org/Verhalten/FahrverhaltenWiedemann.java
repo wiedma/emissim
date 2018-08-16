@@ -1,4 +1,8 @@
 package org.Verhalten;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import org.PhysicEngine.Physics;
 import org.Verkehr.Fahrzeug;
 import org.Verkehr.Hindernis;
@@ -90,21 +94,52 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	private boolean unfall;
 	
 	/**
+	 * Debug-Datei
+	 */
+	private File file;
+	
+	private int id;
+	
+	private static int nummer = 0;
+	
+	private PrintWriter writer;
+	
+	private static final boolean writing = false;
+	
+	/**
 	 * Erzeugt ein neues Fahrverhalten nach Wiedemann mit den entsprechenden Parametern
 	 * @param f Das Fahrzeug, das dieses Fahrverhalten anwenden soll
 	 */
 	public FahrverhaltenWiedemann(Fahrzeug f) {
 		super(f);
+		
+		id = nummer;
+		nummer++;
+		
 		//Erzeugung der Zufallszahlen ZF0 bis ZF4
 		double tempolimit = f.spurGeben().maxGeschwindigkeitGeben();
 		tempolimitAktualisieren(tempolimit);
-		sicherheitsbeduerfnis = Physics.normalverteilung(0.5, 0.15);
-		schaetzvermoegen = Physics.normalverteilung(0.5, 0.15);
-		beschleunigungswille = Physics.normalverteilung(0.5, 0.15);
-		gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
+		sicherheitsbeduerfnis = f.sicherheitsbeduerfnisGeben();
+		schaetzvermoegen = f.schaetzvermoegenGeben();
+		beschleunigungswille = f.beschleunigungswilleGeben();
+		gaspedalkontrolle = f.gaspedalkontrolleGeben();
 		bnull = 0.2 * (gaspedalkontrolle + Physics.normalverteilung(0.5, 0.15));
 		this.f = f;
 		unfall = false;
+		
+		if(writing) {
+			file = new File("DebugLog/Wiedemann" + id + ".txt");
+			File parent = file.getParentFile();
+			if (!parent.exists() && !parent.mkdirs()) {
+				throw new IllegalStateException("Couldn't create dir: " + parent);
+			}
+			try {
+				file.createNewFile();
+				writer = new PrintWriter(file.getAbsolutePath(), "UTF-8");
+			}catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -128,11 +163,13 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			return wunsch();
 		}
 		
+		
 		//Berechnung der einzelnen Parameter
 		dx = vorne.entfernungGeben();
+		
 		dv = f.geschwindigkeitGeben() - vordermann.geschwindigkeitGeben();
 				
-		ax = 5.5 + 2 * sicherheitsbeduerfnis;
+		ax = vordermann.laengeGeben() + 1 + 2 * sicherheitsbeduerfnis;
 		
 		double bxGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
 		bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit);
@@ -147,26 +184,54 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		
 		opdv = cldv * (-1 - 2 * Physics.normalverteilung(0.5, 0.15));
 		
+		if(writing) {
+			writer.println("------------------------------------------------------------------");
+			writer.println("DX: " + dx);
+			writer.println("DV: " +  dv);
+			writer.println("AX: " + ax);
+			writer.println("BX: " + bx);
+			writer.println("SDV: " + sdv);
+			writer.println("SDX: " + sdx);
+			writer.println("CLDV: " + cldv);
+			writer.println("OPDV: " + opdv);
+			writer.println("R: " + r);
+			writer.println("Geschwindigkeit: " + f.geschwindigkeitGeben());
+			writer.println("Geschwindigkeit Vordermann: " + vordermann.geschwindigkeitGeben());
+			writer.println("POS: " + f.posGeben());
+		}
+		
 		//Bestimme die anzuwendende Prozedur zur Beschleunigungsbestimmung
 		if(dx <= bx) {
+			if(writing)
+			writer.println("PROZEDUR: BREMSAX");
 			return bremsax();
 		}
 		
 		if(dx < sdx) {
 			if(dv > cldv) {
+				if(writing)
+				writer.println("PROZEDUR: BREMSBX");
 				return bremsbx();
 			}
 			else if(dv > opdv) {
+				if(writing)
+				writer.println("PROZEDUR: FOLGEN");
 				return folgen();
 			}
 			else {
+				if(writing)
+				writer.println("PROZEDUR: WUNSCH");
 				return wunsch();
 			}
 		}
 		else if(dv >= sdv && dx < 1000) {
+			if(writing)
+			writer.println("PROZEDUR: BREMSBX");
 			return bremsbx();
 		}
 		else {
+			if(writing)
+			writer.println("PROZEDUR: WUNSCH");
 			return wunsch();
 		}
 		
@@ -257,13 +322,18 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		double beschleunigungSubjektiv = beschleunigungObjektiv + beschleunigungObjektiv * schaetzfehler;
 		
 		//Untere Schwelle der Gaspedalkontrolle
-		if(beschleunigungSubjektiv > -bnull) {
-			beschleunigungSubjektiv = -bnull;
+		if(Math.abs(beschleunigungSubjektiv) < Math.abs(bnull)) {
+			beschleunigungSubjektiv = Math.signum(beschleunigungSubjektiv) * bnull;
 		}
 		
 		//Maximale Bremsfähigkeit des Fahrzeuges
 		if(beschleunigungSubjektiv < bmin) {
 			beschleunigungSubjektiv = bmin;
+		}
+		
+		if(writing) {
+			writer.println("Beschleunigung: " + beschleunigungSubjektiv);
+			writer.flush();			
 		}
 		
 		//Unfall
@@ -298,13 +368,18 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 		
 		//Untere Schwelle der Gaspedalkontrolle
-		if(beschleunigungSubjektiv > -bnull) {
-			beschleunigungSubjektiv = -bnull;
+		if(Math.abs(beschleunigungSubjektiv) < Math.abs(bnull)) {
+			beschleunigungSubjektiv = Math.signum(beschleunigungSubjektiv) * bnull;
 		}
 		
 		//Maximale Bremsfähigkeit des Fahrzeuges
 		if(beschleunigungSubjektiv < bmin) {
 			beschleunigungSubjektiv = bmin;
+		}
+		
+		if(writing) {
+			writer.println("Beschleunigung: " + beschleunigungSubjektiv);
+			writer.flush();			
 		}
 		
 		return beschleunigungSubjektiv;
@@ -321,6 +396,11 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 		else {
 			beschleunigung = -bnull;
+		}
+		
+		if(writing) {
+			writer.println("Beschleunigung: " + beschleunigung);
+			writer.flush();			
 		}
 		
 		Fahrzeug vordermann, vorvordermann;
@@ -380,6 +460,11 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			beschleunigungWunsch = (beschleunigungWunsch > 0) ? bnull : -bnull;
 		}
 		
+		if(writing) {
+			writer.println("Beschleunigung: " + beschleunigungWunsch);
+			writer.flush();			
+		}
+		
 		//Wenn kein Vordermann existiert, oder dieser zu weit entfernt ist
 		if(dx == 0 || dx > 2 * bx) {
 			return beschleunigungWunsch;
@@ -393,10 +478,14 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	 * Ihre Geschwindigkeiten werden auf 0 gesetzt und die Fahrzeuge kommen zum Stillstand.
 	 */
 	private void unfall() {
+		if(writing) {
+			writer.flush();
+			writer.close();			
+		}
 		f.unfall();
 		f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().unfall();
 		System.out.println("UNFALL");
-		System.exit(1);
+		System.exit(0);
 	}
-
+	
 }

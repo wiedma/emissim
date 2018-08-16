@@ -48,6 +48,26 @@ public abstract class Fahrzeug {
 	/**Beschreibt, ob das Fahrzeug in einem Unfall verwickelt ist und deshalb stehen bleiben soll*/
 	protected boolean unfall;
 	
+	/**
+	 * Das Sicherheitsbedürfnis des Fahrers als (0.5, 0.15)-normalverteilte Zufallszahl
+	 */
+	protected double sicherheitsbeduerfnis;
+	
+	/**
+	 * Das Schätzvermögen des Fahrers als (0.5, 0.15)-normalverteilte Zufallszahl
+	 */
+	protected double schaetzvermoegen;
+	
+	/**
+	 * Der Beschleunigungswille des Fahrers als (0.5, 0.15)-normalverteilte Zufallszahl
+	 */
+	protected double beschleunigungswille;
+	
+	/**
+	 * Die Fähigkeit des Fahrers sein Gaspedal zu kontrollieren als (0.5, 0.15)-normalverteilte Zufallszahl
+	 */
+	protected double gaspedalkontrolle;
+	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
 		
@@ -86,6 +106,11 @@ public abstract class Fahrzeug {
 		}
 		
 		unfall = false;	
+		
+		sicherheitsbeduerfnis = Physics.normalverteilung(0.5, 0.15);
+		schaetzvermoegen = Physics.normalverteilung(0.5, 0.15);
+		beschleunigungswille = Physics.normalverteilung(0.5, 0.15);
+		gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
 		
 	}
 	
@@ -138,7 +163,7 @@ public abstract class Fahrzeug {
 	/**Berechne die CO₂-Emission des Fahrzeugs in dieser Zeiteinheit in kg*/
 	public double emissionBerechnen() {
 		//Die gefahrene Strecke durch Bewegungsgleichungen berechnen
-		double strecke = Physics.bewege(0, geschwindigkeit, beschleunigung);
+		double strecke = Math.abs(Physics.bewege(0, geschwindigkeit, beschleunigung));
 		//benötigte Energie berechnet sich aus der Summe der Fahrtwiderstandskräfte und der Strecke
 		double benoetigteEnergie = strecke * (Physics.rollreibung(rollreibungszahl, masse)
 				+ Physics.luftreibung(luftreibungszahl, frontflaeche, geschwindigkeit)
@@ -232,7 +257,23 @@ public abstract class Fahrzeug {
 	public void streckeSetzen(Strecke strecke) {
 		this.strecke = strecke;
 	}
-	
+
+	public double sicherheitsbeduerfnisGeben() {
+		return sicherheitsbeduerfnis;
+	}
+
+	public double schaetzvermoegenGeben() {
+		return schaetzvermoegen;
+	}
+
+	public double beschleunigungswilleGeben() {
+		return beschleunigungswille;
+	}
+
+	public double gaspedalkontrolleGeben() {
+		return gaspedalkontrolle;
+	}
+
 	public void sensorAktivieren() {
 		co2sensor.aktiviere();
 	}

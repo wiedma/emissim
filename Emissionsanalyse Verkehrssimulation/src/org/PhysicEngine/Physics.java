@@ -36,6 +36,9 @@ public final class Physics {
 	Drehmassenzuschlagsfaktoren nach Gang aus [HA08]*/
 	public static double beschleunigungswiderstand(double masse, double beschleunigung,
 			int gang) {
+		if(beschleunigung < 0) {
+			return 0;
+		}
 		//Drehmassenzuschlagsfaktor bestimmen
 		double lamda;
 		switch (gang) {

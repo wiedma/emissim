@@ -247,13 +247,12 @@ public abstract class Fahrspur implements Datenelement {
 		if(entfernung == 0) {
 			//Suche nach dem Fahrzeug mit dem kleinsten positiven Abstand zum Sucher
 			Fahrzeug naechster = null;
-			double abstandNaechster = laenge - sucher.posGeben() - (sucher.laengeGeben()/2.0);
+			double abstandNaechster = laenge - sucher.posGeben();
 			for(int i = 0; i < fahrzeuge.size(); i++) {
 				Fahrzeug momentan = fahrzeuge.get(i);
 				//Nettoabstand der beiden Fahrzeuge
-				double abstand = (momentan.posGeben() - sucher.posGeben()) - 
-						(momentan.laengeGeben()/2.0 + sucher.laengeGeben()/2.0);
-				if(abstand > 0 && abstand < abstandNaechster && abstand <= 1000) {
+				double abstand = (momentan.posGeben() - sucher.posGeben());
+				if(abstand > 0 && abstand <= abstandNaechster && abstand <= 1000) {
 					naechster = momentan;
 					abstandNaechster = abstand;
 				}
@@ -295,7 +294,7 @@ public abstract class Fahrspur implements Datenelement {
 					}
 					//Wenn der Dummy rechts gesetzt wurde
 					else {
-						//Wenn das Ziel noch kein Hindernis hatte
+						//Wenn das Ziel bereits ein Hindernis hatte
 						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS) != null) {
 							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
 							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben()
@@ -324,7 +323,7 @@ public abstract class Fahrspur implements Datenelement {
 			else {
 				//Führe die Suche auf der nächsten Spur fort
 				return naechsteFahrspur.hindernisVorne(sucher,
-						laenge - sucher.posGeben() - (sucher.laengeGeben()/2.0));
+						laenge - sucher.posGeben());
 			}
 		}
 		//Wenn sich das suchende Fahrzeug nicht auf dieser Spur befindet
@@ -334,9 +333,9 @@ public abstract class Fahrspur implements Datenelement {
 			double naechsterPos = laenge;
 			for(int i = 0; i < fahrzeuge.size(); i++) {
 				Fahrzeug momentan = fahrzeuge.get(i);
-				if(momentan.posGeben() - (momentan.laengeGeben()/2.0) < naechsterPos) {
+				if(momentan.posGeben() <= naechsterPos) {
 					naechster = momentan;
-					naechsterPos = momentan.posGeben() - (momentan.laengeGeben()/2.0);
+					naechsterPos = momentan.posGeben();
 				}
 			}
 			
@@ -420,12 +419,11 @@ public abstract class Fahrspur implements Datenelement {
 		if(entfernung == 0) {
 			//Suche nach dem Fahrzeug mit dem kleinsten negativen Abstand zum Sucher
 			Fahrzeug naechster = null;
-			double abstandNaechster = -sucher.posGeben() + (sucher.laengeGeben()/2.0);
+			double abstandNaechster = -sucher.posGeben();
 			for(int i = 0; i < fahrzeuge.size(); i++) {
 				Fahrzeug momentan = fahrzeuge.get(i);
-				double abstand = (momentan.posGeben() - sucher.posGeben()) +
-						(momentan.laengeGeben()/2.0 + sucher.laengeGeben()/2.0);
-				if(abstand < 0 && abstand > abstandNaechster && abstand >= -1000) {
+				double abstand = (momentan.posGeben() - sucher.posGeben());
+				if(abstand < 0 && abstand >= abstandNaechster && abstand >= -1000) {
 					naechster = momentan;
 					abstandNaechster = abstand;
 				}
@@ -496,7 +494,7 @@ public abstract class Fahrspur implements Datenelement {
 			else {
 				//Führe die Suche auf der nächsten Spur fort
 				return vorherigeFahrspur.hindernisHinten(sucher,
-						sucher.posGeben() - (sucher.laengeGeben()/2.0));
+						sucher.posGeben());
 			}
 		}
 		//Wenn sich das suchende Fahrzeug nicht auf dieser Spur befindet
@@ -506,9 +504,9 @@ public abstract class Fahrspur implements Datenelement {
 			double naechsterPos = 0;
 			for(int i = 0; i < fahrzeuge.size(); i++) {
 				Fahrzeug momentan = fahrzeuge.get(i);
-				if(momentan.posGeben() + (momentan.laengeGeben()/2.0) > naechsterPos) {
+				if(momentan.posGeben() >= naechsterPos) {
 					naechster = momentan;
-					naechsterPos = momentan.posGeben() + (momentan.laengeGeben()/2.0);
+					naechsterPos = momentan.posGeben();
 				}
 			}
 			

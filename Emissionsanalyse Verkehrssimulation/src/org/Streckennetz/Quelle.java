@@ -188,7 +188,7 @@ public class Quelle extends Fahrspur {
 		if(h != null) {
 			fahrzeug.geschwindigkeitSetzen(h.geschwindigkeitGeben());
 			double sicherheitsbeduerfnis = fahrzeug.sicherheitsbeduerfnisGeben();
-			double ax = h.zielFahrzeug().laengeGeben() + 1 + 2 * sicherheitsbeduerfnis;
+			double ax = (fahrzeug.laengeGeben()/2.0) + (h.zielFahrzeug().laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
 			double bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(h.geschwindigkeitGeben());
 			//Wenn der Abstand zu gering ist
 			if(h.entfernungGeben() < bx) {
@@ -202,11 +202,12 @@ public class Quelle extends Fahrspur {
 		//Weise dem Fahrzeug eine Verhaltensklasse zu
 		FahrverhaltenAbsicht verhalten = new FahrverhaltenAbsicht(fahrzeug);
 		verhalten.absichtAnmelden(new AbstandHalten(fahrzeug));
-		fahrzeug.verhaltenSetzen(verhalten);
-//		fahrzeug.verhaltenSetzen(new FahrverhaltenWiedemann(fahrzeug));
+//		fahrzeug.verhaltenSetzen(verhalten);
+		fahrzeug.verhaltenSetzen(new FahrverhaltenWiedemann(fahrzeug));
 		
 		//Nur ausführen, wenn Erzeugung erfolgreich ist
 		rueckstau[vorlauf] -= 1;
+		Simulation.fahrzeugHinzufuegen(fahrzeug);
 		return true;
 	}
 	

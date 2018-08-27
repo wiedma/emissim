@@ -56,5 +56,11 @@ public class Netz {
 		}
 	}
 	
+	public void hindernisseBestimmen() {
+		for(Fahrzeug f : fahrzeuge) {
+			f.alleHindernisseSuchen();
+		}
+	}
+	
 
 }

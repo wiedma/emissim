@@ -252,7 +252,7 @@ public abstract class Fahrspur implements Datenelement {
 				Fahrzeug momentan = fahrzeuge.get(i);
 				//Nettoabstand der beiden Fahrzeuge
 				double abstand = (momentan.posGeben() - sucher.posGeben());
-				if(abstand > 0 && abstand <= abstandNaechster && abstand <= 1000) {
+				if(abstand >= 0 && abstand <= abstandNaechster && abstand <= 1000 && momentan != sucher) {
 					naechster = momentan;
 					abstandNaechster = abstand;
 				}
@@ -423,7 +423,7 @@ public abstract class Fahrspur implements Datenelement {
 			for(int i = 0; i < fahrzeuge.size(); i++) {
 				Fahrzeug momentan = fahrzeuge.get(i);
 				double abstand = (momentan.posGeben() - sucher.posGeben());
-				if(abstand < 0 && abstand >= abstandNaechster && abstand >= -1000) {
+				if(abstand <= 0 && abstand >= abstandNaechster && abstand >= -1000 && momentan != sucher) {
 					naechster = momentan;
 					abstandNaechster = abstand;
 				}

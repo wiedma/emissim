@@ -20,7 +20,7 @@ public class Vorlauf extends Gerade {
 		//Referenzen des Fahrzeugs neu setzen
 		fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
 		fahrzeug.spurSetzen(naechsteFahrspur);
-		Simulation.fahrzeugHinzufuegen(fahrzeug);
+//		Simulation.fahrzeugHinzufuegen(fahrzeug);
 		//Aktiviere den Sensor des Fahrzeugs
 		fahrzeug.sensorAktivieren();
 		

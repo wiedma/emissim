@@ -107,6 +107,21 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	private static final boolean writing = false;
 	
 	/**
+	 * Wahrscheinlichkeit, mit der in diesem Zeitschritt der Trödeleffekt eingeleitet wird
+	 */
+	public static final double TROEDELWAHRSCHEINLICHKEIT = 0.05;
+	
+	/**
+	 * Die Dauer des Trödeleffektes in s
+	 */
+	public static final double TROEDELDAUER = 2.5;
+	
+	/**
+	 * Die Zeit, die dieses Fahrzeug bereits trödelt
+	 */
+	private double troedelzeit;
+	
+	/**
 	 * Erzeugt ein neues Fahrverhalten nach Wiedemann mit den entsprechenden Parametern
 	 * @param f Das Fahrzeug, das dieses Fahrverhalten anwenden soll
 	 */
@@ -150,17 +165,24 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	 */
 	public double beschleunigungBestimmen() {
 		
+		//Wenn das Fahrzeug in einen Unfall verwickelt ist
 		if(unfall) {
+			//Soll es nicht beschleunigen
 			return 0;
 		}
 		
+		double beschleunigung;
+		
+		//Bestimme den Vordemann des Fahrzeuges
 		Fahrzeug vordermann;
 		Hindernis vorne;
 		try {
 			vorne = f.hindernisGeben(HindernisRichtung.VORNE);
 			vordermann = vorne.zielFahrzeug();
 		} catch (Exception e) {
-			return wunsch();
+			//Wenn es keinen Vordermann gibt, strebe die Wunschgeschwindigkeit an
+			beschleunigung = wunsch();
+			return troedel(beschleunigung);
 		}
 		
 		
@@ -169,7 +191,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		
 		dv = f.geschwindigkeitGeben() - vordermann.geschwindigkeitGeben();
 				
-		ax = vordermann.laengeGeben() + 1 + 2 * sicherheitsbeduerfnis;
+		ax = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
 		
 		double bxGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
 		bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit);
@@ -204,37 +226,46 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		if(dx <= bx) {
 			if(writing)
 			writer.println("PROZEDUR: BREMSAX");
-			return bremsax();
+			beschleunigung = troedel(bremsax());
 		}
-		
-		if(dx < sdx) {
-			if(dv > cldv) {
-				if(writing)
-				writer.println("PROZEDUR: BREMSBX");
-				return bremsbx();
+		else {
+			if(dx < sdx) {
+				if(dv > cldv) {
+					if(writing)
+						writer.println("PROZEDUR: BREMSBX");
+					beschleunigung = troedel(bremsbx());
+				}
+				else if(dv > opdv) {
+					if(writing)
+						writer.println("PROZEDUR: FOLGEN");
+					beschleunigung = troedel(folgen());
+				}
+				else {
+					if(writing)
+					writer.println("PROZEDUR: WUNSCH");
+					beschleunigung = troedel(wunsch());
+				}
 			}
-			else if(dv > opdv) {
+			else if(dv >= sdv && dx < 1000) {
 				if(writing)
-				writer.println("PROZEDUR: FOLGEN");
-				return folgen();
+					writer.println("PROZEDUR: BREMSBX");
+				beschleunigung = troedel(bremsbx());
 			}
 			else {
 				if(writing)
-				writer.println("PROZEDUR: WUNSCH");
-				return wunsch();
+					writer.println("PROZEDUR: WUNSCH");
+				beschleunigung = troedel(wunsch());
 			}
 		}
-		else if(dv >= sdv && dx < 1000) {
-			if(writing)
-			writer.println("PROZEDUR: BREMSBX");
-			return bremsbx();
+		
+		//Verhindere negative Geschwindigkeiten
+		if(f.geschwindigkeitGeben() + (beschleunigung * Physics.DELTA_TIME) <= 0) {
+			f.geschwindigkeitSetzen(0);
+			return 0;
 		}
 		else {
-			if(writing)
-			writer.println("PROZEDUR: WUNSCH");
-			return wunsch();
+			return beschleunigung;
 		}
-		
 	}
 
 	@Override
@@ -337,7 +368,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 		
 		//Unfall
-		if(dx < (f.laengeGeben()/2.0) + (f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().laengeGeben()/2.0)) {
+		if(dx < ax) {
 			unfall();
 		}
 		
@@ -407,7 +438,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		try {
 			vordermann = f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug();
 			vorvordermann = vordermann.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug();
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			return beschleunigung;
 		}
 		
@@ -486,6 +517,60 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().unfall();
 		System.out.println("UNFALL");
 		System.exit(0);
+	}
+	
+	/**
+	 * 
+	 * @param beschleunigung die Beschleunigung, die ohne den Trödeleffekt errechnet wurde
+	 * @return Die Beschleunigung unter berücksichtigung des Trödeleffekts
+	 */
+	private double troedel(double beschleunigung) {
+		
+		//Wenn der Trödelvorgang bereits eingeleitet wurde
+		if(troedelzeit != 0 && troedelzeit < TROEDELDAUER) {
+			//Addiere den Zeitschritt zur Trödelzeit hinzu
+			troedelzeit += Physics.DELTA_TIME;
+			//Gebe entweder -BNULL oder die Beschleunigung zurück
+			double beschleunigungT = Math.min(beschleunigung, -bnull);
+			//Wenn ein Bremsmanöver eingeleitet wurde
+			if(beschleunigungT == beschleunigung) {
+				//Beende den Trödelvorgang
+				troedelzeit = 0;
+			}
+			
+			if(writing)
+			writer.println("TRÖDELEFFEKT");
+			
+			return beschleunigungT;
+		}
+		//Wenn der Trödelvorgang bereit beendet wurde
+		else {
+			//Setze die Trödelzeit zurück
+			troedelzeit = 0;
+		}
+		
+		//Wenn der Trödeleffekt zufällig eingeleitet werden soll
+		double random = Math.random();
+		if(random < TROEDELWAHRSCHEINLICHKEIT) {
+			//Addiere den Zeitschritt zur Trödelzeit hinzu
+			troedelzeit += Physics.DELTA_TIME;
+			//Gebe entweder -BNULL oder die Beschleunigung zurück
+			double beschleunigungT = Math.min(beschleunigung, -bnull);
+			//Wenn ein Bremsmanöver eingeleitet wurde
+			if(beschleunigungT == beschleunigung) {
+				//Beende den Trödelvorgang
+				troedelzeit = 0;
+			}
+			if(writing)
+			writer.println("TRÖDELEFFEKT");
+			return beschleunigungT;
+			
+		}
+		//Wenn der Trödeleffekt nicht eingeleitet werden soll
+		else {
+			//Gebe die normal gewählte Beschleunigung zurück
+			return beschleunigung;
+		}
 	}
 	
 }

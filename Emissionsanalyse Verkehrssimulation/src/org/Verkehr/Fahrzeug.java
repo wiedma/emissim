@@ -123,7 +123,7 @@ public abstract class Fahrzeug {
 		}
 		
 		//Bestimme alle Hindernisse in der Umgebung
-		alleHindernisseSuchen();
+//		alleHindernisseSuchen();
 		
 		//Bestimme die neue Beschleunigung des Fahrzeuges
 		beschleunigung = verhalten.beschleunigungBestimmen();

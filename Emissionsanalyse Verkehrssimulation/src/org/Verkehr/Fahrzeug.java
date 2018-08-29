@@ -49,6 +49,11 @@ public abstract class Fahrzeug {
 	protected boolean unfall;
 	
 	/**
+	 * Die Wunschgeschwindigkeit des Fahrzeuges
+	 */
+	protected double wunschgeschwindigkeit;
+	
+	/**
 	 * Das Sicherheitsbedürfnis des Fahrers als (0.5, 0.15)-normalverteilte Zufallszahl
 	 */
 	protected double sicherheitsbeduerfnis;
@@ -67,6 +72,7 @@ public abstract class Fahrzeug {
 	 * Die Fähigkeit des Fahrers sein Gaspedal zu kontrollieren als (0.5, 0.15)-normalverteilte Zufallszahl
 	 */
 	protected double gaspedalkontrolle;
+	
 	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
@@ -122,14 +128,32 @@ public abstract class Fahrzeug {
 			return;
 		}
 		
-		//Bestimme alle Hindernisse in der Umgebung
-//		alleHindernisseSuchen();
-		
 		//Bestimme die neue Beschleunigung des Fahrzeuges
 		beschleunigung = verhalten.beschleunigungBestimmen();
 		
+		//Treffe eine Spurwechselentscheidung
+		boolean spurwechselLinks = false, spurwechselRechts = false;
+		
+		if(!spur.ueberholverbotGeben()) {
+			if(spur.hatLinkenNachbarn()) {
+				spurwechselLinks = verhalten.spurwechselBestimmen(true);
+			}
+			
+			if(spur.hatRechtenNachbarn()) {
+				spurwechselRechts = verhalten.spurwechselBestimmen(false);			
+			}	
+		}
+		
+		
 		//Neue Position
 		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
+		
+		if(spurwechselLinks) {
+			spur.spurwechsel(this, true);
+		}
+		else if(spurwechselRechts) {
+			spur.spurwechsel(this, false);
+		}
 		
 		//Emissionsdaten sammeln und speichern
 		co2sensor.schreibeDaten(emissionBerechnen());
@@ -257,6 +281,10 @@ public abstract class Fahrzeug {
 	public void streckeSetzen(Strecke strecke) {
 		this.strecke = strecke;
 	}
+	
+	public double wunschgeschwindigkeitGeben() {
+		return wunschgeschwindigkeit;
+	}
 
 	public double sicherheitsbeduerfnisGeben() {
 		return sicherheitsbeduerfnis;
@@ -308,7 +336,7 @@ public abstract class Fahrzeug {
 	}
 	
 	public void tempolimitAktualisieren(double tempolimitNeu) {
-		verhalten.tempolimitAktualisieren(tempolimitNeu);
+		wunschgeschwindigkeit = verhalten.tempolimitAktualisieren(tempolimitNeu);
 	}
 //------------------------------------------------------------------------------------------------
 }

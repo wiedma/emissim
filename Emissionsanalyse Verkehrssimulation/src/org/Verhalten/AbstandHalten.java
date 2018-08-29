@@ -105,7 +105,7 @@ public class AbstandHalten extends Absicht {
 	 * Bestimmung der Wunschgeschwindigkeit nach [ER07]
 	 * @param tempolimit Die neu geltende Geschwindigkeitsbeschränkung
 	 */
-	public void tempolimitAktualisieren(double tempolimit) {
+	public double tempolimitAktualisieren(double tempolimit) {
 		if(fahrzeug instanceof PKW) {
 			if(tempolimit > 120) {
 				wunschgeschwindigkeit = Physics.normalverteilung(142, 20);
@@ -148,6 +148,8 @@ public class AbstandHalten extends Absicht {
 		}
 		//Konvertierung von km/h zu m/s
 		wunschgeschwindigkeit = wunschgeschwindigkeit / 3.6;
+		
+		return wunschgeschwindigkeit;
 	}
 
 	@Override

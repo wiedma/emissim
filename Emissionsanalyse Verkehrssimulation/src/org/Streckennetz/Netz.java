@@ -45,6 +45,12 @@ public class Netz {
 	
 	/**Gibt das Signal der Simulation an alle Fahrspuren im Netz weiter*/
 	public void zeitschritt() {
+		for(Fahrzeug f : fahrzeuge) {
+			f.alleHindernisseSuchen();
+		}
+		for(int i = fahrzeuge.size() - 1; i >= 0; i--) {
+			fahrzeuge.get(i).zeitschritt();
+		}
 		for(Fahrspur spur : spuren) {
 			spur.zeitschritt();
 		}
@@ -56,11 +62,11 @@ public class Netz {
 		}
 	}
 	
-	public void hindernisseBestimmen() {
-		for(Fahrzeug f : fahrzeuge) {
-			f.alleHindernisseSuchen();
-		}
-	}
+//	public void hindernisseBestimmen() {
+//		for(Fahrzeug f : fahrzeuge) {
+//			f.alleHindernisseSuchen();
+//		}
+//	}
 	
 
 }

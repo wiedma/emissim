@@ -1,6 +1,5 @@
 package org.Streckennetz;
 import org.Verkehr.Fahrzeug;
-import org.main.Simulation;
 /**Ein Vorlauf ist immer Nachfolger einer Quelle.
  * Er dient dazu den Verkehr zu harmonisieren, bevor die eigentlichen Messungen beginnen.
  * Alle Sensoren bleiben auf den Vorläufen deaktiviert.
@@ -27,6 +26,10 @@ public class Vorlauf extends Gerade {
 		//Referenzen der Spuren neu setzen
 		naechsteFahrspur.fahrzeugHinzufuegen(fahrzeug);
 		this.fahrzeugEntfernen(fahrzeug);
+	}
+	
+	public boolean ueberholverbotGeben() {
+		return true;
 	}
 
 }

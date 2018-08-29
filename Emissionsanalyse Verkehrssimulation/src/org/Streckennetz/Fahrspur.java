@@ -107,8 +107,8 @@ public abstract class Fahrspur implements Datenelement {
 	/**Fahrzeuge der Spur hinzufügen*/
 	public void fahrzeugHinzufuegen(Fahrzeug fahrzeug) {
 		if(fahrzeug.posGeben() >= laenge) {
-			fahrzeug.posSetzen(fahrzeug.posGeben() - laenge);
 			uebergebeFahrzeug(fahrzeug);
+			return;
 		}
 		
 		fahrzeuge.add(fahrzeug);
@@ -167,6 +167,51 @@ public abstract class Fahrspur implements Datenelement {
 		} catch(NullPointerException e){
 			return false;
 		}
+	}
+	
+	public boolean hatLinkenNachbarn() {
+		return linkeFahrspur != null;
+	}
+	
+	public boolean hatRechtenNachbarn() {
+		return rechteFahrspur != null;
+	}
+	
+	/**
+	 * Führt einen Spurwechsel durch
+	 * @param f das Fahrzeug, welches die Spur wechseln soll
+	 * @param links die Richtung, in die gewechselt werden soll
+	 */
+	public void spurwechsel(Fahrzeug f, boolean links) {
+		//Wenn das Fahrzeug nicht auf dieser Spur fährt
+		if(!fahrzeuge.contains(f)) {
+			//Mache nichts
+			return;
+		}
+		//Wenn nach links gewechselt werden soll
+		if(links) {
+			//Wenn es keinen linken Nachbarn gibt
+			if(linkeFahrspur == null) {
+				//Mache nichts
+				return;
+			}
+			//Setze die Referenzen neu
+			f.spurSetzen(linkeFahrspur);
+			linkeFahrspur.fahrzeugHinzufuegen(f);
+		}
+		//Wenn nach rechts gewechselt werden soll
+		else {
+			//Wenn es keinen rechten Nachbarn gibt
+			if(rechteFahrspur == null) {
+				//Mache nichts
+				return;
+			}
+			//Setze die Referenzen neu
+			f.spurSetzen(rechteFahrspur);
+			rechteFahrspur.fahrzeugHinzufuegen(f);
+		}
+		//Entferne das Fahrzeug von dieser Spur
+		fahrzeugEntfernen(f);
 	}
 	
 	@Override
@@ -228,7 +273,6 @@ public abstract class Fahrspur implements Datenelement {
 		//Itereriere rückwärts um ConcurrentModificationException zu vermeiden
 		for(int i = fahrzeuge.size() - 1; i >= 0; i--) {
 			Fahrzeug fahrzeug = fahrzeuge.get(i);
-			fahrzeug.zeitschritt();
 			//Streckenende überschritten
 			if(fahrzeug.posGeben() >= laenge) {
 				uebergebeFahrzeug(fahrzeug);
@@ -267,49 +311,49 @@ public abstract class Fahrspur implements Datenelement {
 					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
 				}
 				//Sonst
-				else {
-					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
-					/Original zeigen*/
-					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
-					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
-							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
-							naechster, false, true);
-					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
-					//Wenn der Dummy links gesetzt wurde
-					if(dummy.istLinks()) {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben()
-									< symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
-						}
-					}
-					//Wenn der Dummy rechts gesetzt wurde
-					else {
-						//Wenn das Ziel bereits ein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben()
-									< symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
-						}
-					}
-				}
+//				else {
+//					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
+//					/Original zeigen*/
+//					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
+//					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
+//							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
+//							naechster, false, true);
+//					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
+//					//Wenn der Dummy links gesetzt wurde
+//					if(dummy.istLinks()) {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben()
+//									< symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
+//						}
+//					}
+//					//Wenn der Dummy rechts gesetzt wurde
+//					else {
+//						//Wenn das Ziel bereits ein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben()
+//									< symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
+//						}
+//					}
+//				}
 				//Gebe das Hindernis zurück
 				return new Hindernis(abstandNaechster, naechster.geschwindigkeitGeben(),
 						naechster, sucher, true, true);
@@ -349,49 +393,49 @@ public abstract class Fahrspur implements Datenelement {
 					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
 				}
 				//Sonst
-				else {
-					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
-					/Original zeigen*/
-					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
-					Hindernis symmetrisch = new Hindernis(naechsterPos + entfernung,
-							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
-							naechster, false, false);
-					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
-					//Wenn der Dummy links gesetzt wurde
-					if(dummy.istLinks()) {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben()
-									> symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
-						}
-					}
-					//Wenn der Dummy rechts gesetzt wurde
-					else {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben()
-									> symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
-						}
-					}
-				}
+//				else {
+//					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
+//					/Original zeigen*/
+//					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
+//					Hindernis symmetrisch = new Hindernis(naechsterPos + entfernung,
+//							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
+//							naechster, false, false);
+//					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
+//					//Wenn der Dummy links gesetzt wurde
+//					if(dummy.istLinks()) {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben()
+//									> symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_RECHTS);
+//						}
+//					}
+//					//Wenn der Dummy rechts gesetzt wurde
+//					else {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben()
+//									> symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN_LINKS);
+//						}
+//					}
+//				}
 				
 				//Gebe dieses zurück
 				return new Hindernis(naechsterPos + entfernung,
@@ -438,49 +482,49 @@ public abstract class Fahrspur implements Datenelement {
 					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
 				}
 				//Sonst
-				else {
-					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
-					/Original zeigen*/
-					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
-					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
-							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
-							naechster, true, true);
-					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
-					//Wenn der Dummy links gesetzt wurde
-					if(dummy.istLinks()) {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben()
-									> symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
-						}
-					}
-					//Wenn der Dummy rechts gesetzt wurde
-					else {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben()
-									> symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
-						}
-					}
-				}
+//				else {
+//					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
+//					/Original zeigen*/
+//					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
+//					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
+//							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
+//							naechster, true, true);
+//					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
+//					//Wenn der Dummy links gesetzt wurde
+//					if(dummy.istLinks()) {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben()
+//									> symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
+//						}
+//					}
+//					//Wenn der Dummy rechts gesetzt wurde
+//					else {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben()
+//									> symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
+//						}
+//					}
+//				}
 				//Gebe dieses zurück
 				return new Hindernis(abstandNaechster, naechster.geschwindigkeitGeben(),
 						naechster, sucher, false, true);
@@ -520,49 +564,49 @@ public abstract class Fahrspur implements Datenelement {
 					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
 				}
 				//Sonst
-				else {
-					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
-					/Original zeigen*/
-					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
-					Hindernis symmetrisch = new Hindernis((laenge - naechsterPos) + entfernung,
-							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
-							naechster, true, false);
-					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
-					//Wenn der Dummy links gesetzt wurde
-					if(dummy.istLinks()) {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben()
-									> symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
-						}
-					}
-					//Wenn der Dummy rechts gesetzt wurde
-					else {
-						//Wenn das Ziel noch kein Hindernis hatte
-						if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS) != null) {
-							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
-							if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben()
-									> symmetrisch.entfernungGeben()) {
-								//Nutze Symmetrie aus und setze das neue Hindernis
-								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
-							}
-						}
-						//Wenn das Ziel noch kein Hindernis hatte
-						else {
-							//Nutze Symmetrie aus und setze das Hindernis
-							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
-						}
-					}
-				}
+//				else {
+//					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
+//					/Original zeigen*/
+//					DummyFahrzeug dummy = (DummyFahrzeug) sucher;
+//					Hindernis symmetrisch = new Hindernis((laenge - naechsterPos) + entfernung,
+//							dummy.originalGeben().geschwindigkeitGeben(), dummy.originalGeben(), 
+//							naechster, true, false);
+//					//Prüfe, ob dieses Hindernis näher, als das jetzige Hindernis des Ziels ist
+//					//Wenn der Dummy links gesetzt wurde
+//					if(dummy.istLinks()) {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben()
+//									> symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_RECHTS);
+//						}
+//					}
+//					//Wenn der Dummy rechts gesetzt wurde
+//					else {
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS) != null) {
+//							//Wenn die Entfernung zum neuen Hindernis kleiner wäre
+//							if(naechster.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben()
+//									> symmetrisch.entfernungGeben()) {
+//								//Nutze Symmetrie aus und setze das neue Hindernis
+//								naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
+//							}
+//						}
+//						//Wenn das Ziel noch kein Hindernis hatte
+//						else {
+//							//Nutze Symmetrie aus und setze das Hindernis
+//							naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE_LINKS);
+//						}
+//					}
+//				}
 				//Gebe dieses zurück
 				return new Hindernis((laenge - naechsterPos) + entfernung,
 						naechster.geschwindigkeitGeben(), naechster, sucher, false, false);

@@ -73,5 +73,5 @@ public abstract class Absicht {
 	
 	public abstract void anpassen();
 	
-	public abstract void tempolimitAktualisieren(double tempolimit);
+	public abstract double tempolimitAktualisieren(double tempolimit);
 }

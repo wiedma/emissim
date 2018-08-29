@@ -7,6 +7,7 @@ import org.PhysicEngine.Physics;
 import org.Verkehr.Fahrzeug;
 import org.Verkehr.Hindernis;
 import org.Verkehr.HindernisRichtung;
+import org.Verkehr.LKW;
 import org.Verkehr.PKW;
 
 /**
@@ -14,10 +15,6 @@ import org.Verkehr.PKW;
  * im mehrspurigen Verkehr nach Sparmann [SPA78].
  */
 public class FahrverhaltenWiedemann extends Fahrverhalten {
-	/**
-	 * Die Wunschgeschwindigkeit des Fahrers als normalverteilte Zufallszahl (Werte nach [ER07])
-	 */
-	private double wunschgeschwindigkeit;
 	/**
 	 * Das Sicherheitsbedürfnis des Fahrers als (0.5, 0.15)-normalverteilte Zufallszahl
 	 */
@@ -37,6 +34,11 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	 * Die Fähigkeit des Fahrers sein Gaspedal zu kontrollieren als (0.5, 0.15)-normalverteilte Zufallszahl
 	 */
 	private double gaspedalkontrolle;
+	
+	/**Erweiterung des Wiedemann-Modells um den Faktor Zeitlücke zur reduzierung der gewünschten
+	 * Folgeabstände um höhere Verkehrsstärken erreichen zu können 
+	 */
+	private double zeitluecke;
 	
 	/**
 	 * Minimal gewünschter Bruttoabstand zum Vordermann bei Stillstand
@@ -122,6 +124,20 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	private double troedelzeit;
 	
 	/**
+	 * Kontrollvariable für den Spurwechselwunsch nach links. Wird in jedem Zeitschritt, in dem ein
+	 * Spurwechselwunsch nach links besteht um die Dauer des Zeitschrittes erhöht. Andernfalls wird sie
+	 * um die Dauer des Zeitschrittes verringert. Sie kann Werte zwischen 0s und 2s annehmen.
+	 */
+	private double spurwechselWunschLinks = 0;
+	
+	/**
+	 * Kontrollvariable für den Spurwechselwunsch nach rechts. Wird in jedem Zeitschritt, in dem ein
+	 * Spurwechselwunsch nach rechts besteht um die Dauer des Zeitschrittes erhöht. Andernfalls wird sie
+	 * um die Dauer des Zeitschrittes verringert. Sie kann Werte zwischen 0s und 2s annehmen.
+	 */
+	private double spurwechselWunschRechts = 0;
+	
+	/**
 	 * Erzeugt ein neues Fahrverhalten nach Wiedemann mit den entsprechenden Parametern
 	 * @param f Das Fahrzeug, das dieses Fahrverhalten anwenden soll
 	 */
@@ -138,10 +154,16 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		schaetzvermoegen = f.schaetzvermoegenGeben();
 		beschleunigungswille = f.beschleunigungswilleGeben();
 		gaspedalkontrolle = f.gaspedalkontrolleGeben();
+		
+		//Erzeugung der Zeitlücke als 0.5 - 1 gleichverteilte Variable
+		zeitluecke = (Math.random() * 0.5) + 0.5;
+		
+		//Berechnung der minimalen gaspedalkontrolle
 		bnull = 0.2 * (gaspedalkontrolle + Physics.normalverteilung(0.5, 0.15));
 		this.f = f;
 		unfall = false;
 		
+		//Erzeugung der Debug-Log Datei
 		if(writing) {
 			file = new File("DebugLog/Wiedemann" + id + ".txt");
 			File parent = file.getParentFile();
@@ -194,7 +216,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		ax = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
 		
 		double bxGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
-		bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit);
+		bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit) * zeitluecke;
 		
 		double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
 		sdv = Math.pow((dx - ax)/cx, 2);
@@ -268,65 +290,453 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 	}
 
-	@Override
 	/**
 	 * Bestimme, ob das Fahrzeug seine Spur wechseln soll, oder nicht
-	 * @param f Das Fahrzeug, das dieses Fahrverhalten anwenden soll
-	 * @return "links" für Spurwechsel links, "rechts" für Spurwechsel rechts und "" für kein Wechsel
+	 * @param links Ob der Spurwechsel nach links, oder nach rechts geprüft werden soll
+	 * @return Ob der Spurwechsel durchgeführt werden soll, oder nicht
 	 */
-	public String spurwechselBestimmen() {
-		//TODO Spurwechselentscheidungnach Sparmann implementieren
-		return "";
-	}
-
 	@Override
-	/**
-	 * Bestimmung der Wunschgeschwindigkeit nach [ER07]
-	 * @param tempolimit Die neu geltende Geschwindigkeitsbeschränkung
-	 */
-	public void tempolimitAktualisieren(double tempolimit) {
-		if(f instanceof PKW) {
-			if(tempolimit > 120) {
-				wunschgeschwindigkeit = Physics.normalverteilung(142, 20);
+	public boolean spurwechselBestimmen(boolean links) {
+		
+		if(links) {
+			//Wenn ein Spurwechselwunsch nach links besteht
+			if(spurwechselWunschLinks()) {
+				//Erhöhe die Kontrollvariable
+				spurwechselWunschLinks += Physics.DELTA_TIME;
 			}
-			else if(tempolimit > 100) {
-				wunschgeschwindigkeit = Physics.normalverteilung(120, 20);
-			}
-			else if(tempolimit > 80) {
-				wunschgeschwindigkeit = Physics.normalverteilung(110, 18);
-			}
-			else if(tempolimit > 60) {
-				wunschgeschwindigkeit = Physics.normalverteilung(100, 15);
-			}
-			else if(tempolimit > 50) {
-				wunschgeschwindigkeit = Physics.normalverteilung(80, 15);
-			}
+			//Sonst
 			else {
-				wunschgeschwindigkeit = Physics.normalverteilung(50, 10);
+				//Verringere die Kontrollvariable
+				spurwechselWunschLinks -= Physics.DELTA_TIME;
+			}
+			//Sorge dafür, dass die Kontrollvariablen im Wertebereich [0;2] bleiben
+			spurwechselWunschLinks = Math.min(spurwechselWunschLinks, 2.0);
+			spurwechselWunschLinks = Math.max(spurwechselWunschLinks, 0);
+			
+			if(spurwechselWunschLinks >= 1.0) {
+				boolean spurwechsel = spurwechselEntscheidungLinks();
+				if(spurwechsel) {
+					spurwechselWunschLinks = 0;
+				}
+				return spurwechsel;
 			}
 		}
 		else {
-			if(tempolimit > 120) {
-				wunschgeschwindigkeit = Physics.normalverteilung(92, 5);
+			//Wenn ein Spurwechselwunsch nach rechts besteht
+			if(spurwechselWunschRechts()) {
+				//Erhöhe die Kontrollvariable
+				spurwechselWunschRechts += Physics.DELTA_TIME;
 			}
-			else if(tempolimit > 100) {
-				wunschgeschwindigkeit = Physics.normalverteilung(91, 5);
-			}
-			else if(tempolimit > 80) {
-				wunschgeschwindigkeit = Physics.normalverteilung(90, 5);
-			}
-			else if(tempolimit > 60) {
-				wunschgeschwindigkeit = Physics.normalverteilung(85, 4);
-			}
-			else if(tempolimit > 50) {
-				wunschgeschwindigkeit = Physics.normalverteilung(75, 3);
-			}
+			//Sonst
 			else {
-				wunschgeschwindigkeit = Physics.normalverteilung(50, 6);
+				//Verringere die Kontrollvariable
+				spurwechselWunschRechts -= Physics.DELTA_TIME;
+			}
+			//Sorge dafür, dass die Kontrollvariablen im Wertebereich [0;2] bleiben
+			spurwechselWunschRechts = Math.min(spurwechselWunschRechts, 2.0);
+			spurwechselWunschRechts = Math.max(spurwechselWunschRechts, 0);
+			
+			if(spurwechselWunschRechts >= 1.0) {
+				boolean spurwechsel = spurwechselEntscheidungRechts();
+				if(spurwechsel) {
+					spurwechselWunschRechts = 0;
+				}
+				return spurwechsel;
 			}
 		}
-		//Konvertierung von km/h zu m/s
-		wunschgeschwindigkeit = wunschgeschwindigkeit / 3.6;
+		
+		return false;
+	}
+	
+	/**
+	 * Stellt fest, ob ein Spurwechselwunsch nach links besteht
+	 * @return Der Status des Spurwechselwunsches
+	 */
+	private boolean spurwechselWunschLinks() {
+		boolean beeinflussungM = false, beeinflussungV = false;
+		
+		//Berechnung der beeinflussung durch Fahrzeug M
+		double dxM, dvM;
+		try {
+			dxM = f.hindernisGeben(HindernisRichtung.VORNE).entfernungGeben();
+			dvM = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE).geschwindigkeitGeben();
+			
+			//Grenzabstand für potentielle Beeinflussung
+			if(dxM < (ax + bx)) {
+				beeinflussungM = true;
+			}
+			//Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			if(dvM > sdv) {
+				beeinflussungM = true;
+			}
+		}
+		catch(Exception e) {
+			beeinflussungM = false;
+		}
+		
+		//Berechnung der Beeinflussung durch Fahrzeug V
+		double dxV, dvV;
+		try {
+			dxV = f.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben();
+			dvV = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE_LINKS).geschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.VORNE_LINKS).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axv = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxvGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE_LINKS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxv = axv + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxvGeschwindigkeit) * zeitluecke;
+			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
+			double sdvv = Math.pow((dxV - axv)/cx, 2);
+			
+			//Grenzabstand für potentielle Beeinflussung
+			if(dxV < (axv + bxv)) {
+				beeinflussungV = true;
+			}
+			//Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			if(dvV > 0.8 * sdvv) {
+				beeinflussungV = true;
+			}
+			
+		}catch(Exception e) {
+			beeinflussungV = false;
+		}
+		
+		//Feststellung des Spurwechselwunsches
+		if(beeinflussungM) {
+			return true;
+		}
+		else {
+			if(beeinflussungV) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+	}
+	
+	/**
+	 * Stellt fest, ob ein Spurwechselwunsch nach rechts besteht
+	 * @return Der Status des Spurwechselwunsches
+	 */
+	private boolean spurwechselWunschRechts() {
+		boolean beeinflussungM = false, beeinflussungV = false, bFaehrtDichtAuf = false;
+		
+		//Berechnung der beeinflussung durch Fahrzeug M
+        double dxM, dvM;
+		try {
+			dxM = f.hindernisGeben(HindernisRichtung.VORNE).entfernungGeben();
+			dvM = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE).geschwindigkeitGeben();
+			
+			//Grenzabstand für potentielle Beeinflussung
+			if(dxM < ax +  (1.5 * bx)) {
+				beeinflussungM = true;
+			}
+			//Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			if(dvM > 0.5 * sdv) {
+				beeinflussungM = true;
+			}
+		}
+		catch(Exception e) {
+			beeinflussungM = false;
+		}
+		
+		//Berechnung der Beeinflussung durch Fahrzeug V
+		double dxV, dvV;
+		try {
+			dxV = f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben();
+			dvV = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).geschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axv = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxvGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxv = axv + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxvGeschwindigkeit) * zeitluecke;
+			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
+			double sdvv = Math.pow((dxV - axv)/cx, 2);
+			
+			//Grenzabstand für potentielle Beeinflussung
+			double sdxp;
+			if(f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).zielFahrzeug() instanceof LKW) {
+				sdxp = axv + bxv;
+			}
+			else {
+				sdxp = axv + 2 * bxv;
+			}
+			if(dxV < sdxp) {
+				beeinflussungV = true;
+			}
+			
+			//Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			if(dvV > 0.75 * sdvv) {
+				beeinflussungV = true;
+			}
+			
+		}catch(Exception e) {
+			beeinflussungV = false;
+		}
+		
+		//Festellung, ob das Fahrzeug B dicht auffährt
+		double dxB, wunschB;
+		try {
+			dxB = Math.abs(f.hindernisGeben(HindernisRichtung.HINTEN).entfernungGeben());
+			wunschB = f.hindernisGeben(HindernisRichtung.HINTEN).zielFahrzeug().wunschgeschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.HINTEN).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axb = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxbGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxb = axb + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxbGeschwindigkeit) * zeitluecke;
+			
+			if(dxB < axb + bxb && wunschB - wunschgeschwindigkeit > (5.0)/3.6) {
+				bFaehrtDichtAuf = true;
+			}
+		} catch(Exception e) {
+			bFaehrtDichtAuf = false;
+		}
+		
+		//Feststellung des Spurwechselwunsches
+		if(beeinflussungV) {
+			return false;
+		}
+		else {
+			if(beeinflussungM) {
+				if(bFaehrtDichtAuf) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else {
+				return true;
+			}
+		}
+	}
+	
+	/**
+	 * Stellt fest, ob ein Spurwechsel nach links gefahrenlos möglich ist
+	 * @return Der Status der Spurwechselentscheidung
+	 */
+	private boolean spurwechselEntscheidungLinks() {
+		boolean aktuelleBeeinflussungV = false, potentielleBeeinflussungH = false, aktuelleBeeinflussungH = false;
+		
+		//Berechnung der aktuellen Beeinflussung durch Fahrzeug V
+		double dxV, dvV;
+		try {
+			dxV = f.hindernisGeben(HindernisRichtung.VORNE_LINKS).entfernungGeben();
+			dvV = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE_LINKS).geschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.VORNE_LINKS).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axv = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxvGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE_LINKS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxv = axv + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxvGeschwindigkeit) * zeitluecke;
+			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
+			double sdvv = Math.pow((dxV - axv)/cx, 2);
+			
+			//Grenzabstand für aktuelle Beeinflussung
+			if(dxV < bxv) {
+				aktuelleBeeinflussungV = true;
+			}
+			//Grenzgeschwindigkeitsdifferenz für aktuelle Beeinflussung
+			if(dvV > sdvv) {
+				aktuelleBeeinflussungV = true;
+			}
+			
+		}catch(Exception e) {
+			aktuelleBeeinflussungV = false;
+		}
+		
+		//Bestimmung einer aktuellen oder potentiellen Beeinflussung durch Fahrzeug H
+		double dxH, dvH;
+		try {
+			dxH = Math.abs(f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben());
+			dvH = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).geschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axh = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxhGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxh = axh + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxhGeschwindigkeit) * zeitluecke;
+			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
+			double sdvh = Math.pow((dxH - axh)/cx, 2);
+			//Grenzabstand und Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			double sdxp, sdvp;
+			if(f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).zielFahrzeug() instanceof LKW) {
+				sdxp = axh + 3 * bxh;
+				sdvp = 0.5 * sdvh;
+			}
+			else {
+				sdxp = axh + 2 * bxh;
+				sdvp = 0.8 * sdvh;
+			}
+			
+			//Feststellung der potentiellen, oder aktuellen Beeinflussung
+			if(dxH <= sdxp) {
+				potentielleBeeinflussungH = true;
+			}
+			if(dxH <= bxh) {
+				aktuelleBeeinflussungH = true;
+			}
+			
+			if(dvH > sdvp) {
+				potentielleBeeinflussungH = true;
+			}
+			if(dvH > sdvh) {
+				aktuelleBeeinflussungH = true;
+			}
+		}catch(Exception e) {
+			aktuelleBeeinflussungH = false;
+			potentielleBeeinflussungH = false;
+		}
+		
+		//Feststellung der Spurwechselentscheidung
+		if(aktuelleBeeinflussungV) {
+			return false;
+		}
+		
+		if(!aktuelleBeeinflussungH && !potentielleBeeinflussungH) {
+			return true;
+		}
+		
+		if(aktuelleBeeinflussungH) {
+			return false;
+		}
+		
+		if(potentielleBeeinflussungH) {
+			return wunschgeschwindigkeit - f.geschwindigkeitGeben() > 4;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Stellt fest, ob ein Spurwechsel nach rechts gefahrenlos möglich ist
+	 * @return Der Status der Spurwechselentscheidung
+	 */
+	private boolean spurwechselEntscheidungRechts() {
+		boolean beeinflussungV = false, aktuelleBeeinflussungH = false,
+				potentielleBeeinflussungH = false, bFaehrtDichtAuf = false;
+		
+		//Berechnung der Beeinflussung durch Fahrzeug V
+		double dxV, dvV;
+		try {
+			dxV = f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben();
+			dvV = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).geschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axv = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxvGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxv = axv + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxvGeschwindigkeit) * zeitluecke;
+			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
+			double sdvv = Math.pow((dxV - axv)/cx, 2);
+			
+			//Grenzabstand für potentielle Beeinflussung
+			double sdxp;
+			if(f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).zielFahrzeug() instanceof LKW) {
+				sdxp = axv + bxv;
+			}
+			else {
+				sdxp = axv + 2 * bxv;
+			}
+			
+			if(dxV < sdxp) {
+				beeinflussungV = true;
+			}
+			
+			//Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			if(dvV > 0.75 * sdvv) {
+				beeinflussungV = true;
+			}
+			
+		}catch(Exception e) {
+			beeinflussungV = false;
+		}
+		
+		
+		//Bestimmung einer aktuellen oder potentiellen Beeinflussung durch Fahrzeug H
+		double dxH, dvH;
+		try {
+			dxH = Math.abs(f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben());
+			dvH = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).geschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axh = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxhGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxh = axh + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxhGeschwindigkeit) * zeitluecke;
+			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
+			double sdvh = Math.pow((dxH - axh)/cx, 2);
+			//Grenzabstand und Grenzgeschwindigkeitsdifferenz für potentielle Beeinflussung
+			double sdxp, sdvp;
+			if(f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).zielFahrzeug() instanceof LKW) {
+				sdxp = axh + 1.0 * bxh;
+				sdvp = 0.3 * sdvh;
+			}
+			else {
+				sdxp = axh + 1.2 * bxh;
+				sdvp = 0.3 * sdvh;
+			}
+			
+			//Feststellung der potentiellen, oder aktuellen Beeinflussung
+			if(dxH <= sdxp) {
+				potentielleBeeinflussungH = true;
+			}
+			if(dxH <= bxh) {
+				aktuelleBeeinflussungH = true;
+			}
+			
+			if(dvH > sdvp) {
+				potentielleBeeinflussungH = true;
+			}
+			if(dvH > sdvh) {
+				aktuelleBeeinflussungH = true;
+			}
+		}catch(Exception e) {
+			aktuelleBeeinflussungH = false;
+			potentielleBeeinflussungH = false;
+		}
+		
+		//Festellung, ob das Fahrzeug B dicht auffährt
+		double dxB, wunschB;
+		try {
+			dxB = Math.abs(f.hindernisGeben(HindernisRichtung.HINTEN).entfernungGeben());
+			wunschB = f.hindernisGeben(HindernisRichtung.HINTEN).zielFahrzeug().wunschgeschwindigkeitGeben();
+			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.HINTEN).zielFahrzeug();
+			
+			//Bestimmung der Wiedemann-Parameter
+			double axb = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
+			double bxbGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxb = axb + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxbGeschwindigkeit) * zeitluecke;
+
+			if(dxB < axb + bxb && wunschB - wunschgeschwindigkeit > (5.0)/3.6) {
+				bFaehrtDichtAuf = true;
+			}
+		} catch(Exception e) {
+			bFaehrtDichtAuf = false;
+		}
+		
+		//Bestimmung der Spurwechselentscheidung
+		if(beeinflussungV) {
+			return false;
+		}
+		
+		if(!potentielleBeeinflussungH && !aktuelleBeeinflussungH) {
+			return true;
+		}
+		
+		if(aktuelleBeeinflussungH) {
+			return false;
+		}
+		
+		if(potentielleBeeinflussungH) {
+			return wunschgeschwindigkeit - f.geschwindigkeitGeben() < 2.0 && bFaehrtDichtAuf;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -571,6 +981,10 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			//Gebe die normal gewählte Beschleunigung zurück
 			return beschleunigung;
 		}
+	}
+	
+	public double wunschgeschwindigkeitGeben() {
+		return wunschgeschwindigkeit;
 	}
 	
 }

@@ -54,16 +54,18 @@ public class FahrverhaltenAbsicht extends Fahrverhalten {
 	}
 
 	@Override
-	public String spurwechselBestimmen() {
+	public boolean spurwechselBestimmen(boolean links) {
 		// TODO Abstimmung durchführen und daraus eine Richtung für einen Spurwechsel bestimmen
-		return null;
+		return false;
 	}
 
 	@Override
-	public void tempolimitAktualisieren(double tempolimitNeu) {
+	public double tempolimitAktualisieren(double tempolimitNeu) {
+		double wunschgeschwindigkeit = 0;
 		for(Absicht absicht : absichten) {
-			absicht.tempolimitAktualisieren(tempolimitNeu);
+			wunschgeschwindigkeit = absicht.tempolimitAktualisieren(tempolimitNeu);
 		}
+		return wunschgeschwindigkeit;
 	}
 	
 	private double abstimmen(double[] stimmen) {

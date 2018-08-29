@@ -55,7 +55,6 @@ public final class Simulation {
 		long millis = System.currentTimeMillis();
 		System.out.println("Fahrzeuge: " + netz.anzahlFahrzeuge());
 		zeit = Math.round((zeit+Physics.DELTA_TIME)*10)/10.0;
-		netz.hindernisseBestimmen();
 		netz.zeitschritt();
 		System.out.println("Dauer: " + (System.currentTimeMillis() - millis));
 		System.out.println("Zeit: " + zeit);

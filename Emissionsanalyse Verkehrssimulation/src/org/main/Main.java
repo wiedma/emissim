@@ -4,10 +4,11 @@ import org.Streckennetz.*;
 /**Main Klasse zum starten des Projekts*/
 public class Main {
 	
-	public static final double tempolimit = 200;
+	public static final double tempolimit = 150;
 
 	public static void main(String[] args) {
 		beispiel10km();
+
 	}
 	
 	/**Experiment für die Zwischenpräsentation*/
@@ -107,7 +108,7 @@ public class Main {
 		spuren[21] = autobahnEnde;
 		
 		Netz netz = new Netz(spuren);
-		autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(2000);
+		autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(4000);
 		netz.tempolimitSetzen(tempolimit);
 		
 		Simulation.netzSetzen(netz);
@@ -116,7 +117,7 @@ public class Main {
 		while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
 			Simulation.zeitschritt();
 			System.out.println("GESAMT: " + Quelle.fahrzeugeErzeugt());
-			if(Quelle.fahrzeugeErzeugt() >= 500) {
+			if(Quelle.fahrzeugeErzeugt() >= 5000) {
 				autobahnBeginn.aktivSetzen(false);
 			}
 		}

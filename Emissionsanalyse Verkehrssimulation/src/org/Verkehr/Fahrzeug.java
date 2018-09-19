@@ -113,10 +113,21 @@ public abstract class Fahrzeug {
 		
 		unfall = false;	
 		
-		sicherheitsbeduerfnis = Physics.normalverteilung(0.5, 0.15);
-		schaetzvermoegen = Physics.normalverteilung(0.5, 0.15);
-		beschleunigungswille = Physics.normalverteilung(0.5, 0.15);
-		gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
+		do {
+			sicherheitsbeduerfnis = Physics.normalverteilung(0.5, 0.15);
+		} while (sicherheitsbeduerfnis < 0.05 || sicherheitsbeduerfnis > 0.95);
+		
+		do {
+			schaetzvermoegen = Physics.normalverteilung(0.5, 0.15);
+		} while (schaetzvermoegen < 0.05 || schaetzvermoegen > 0.95);
+		
+		do {
+			beschleunigungswille = Physics.normalverteilung(0.5, 0.15);
+		} while (beschleunigungswille < 0.05 || beschleunigungswille > 0.95);
+		
+		do {
+			gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
+		} while (gaspedalkontrolle < 0.05 || gaspedalkontrolle > 0.95);
 		
 	}
 	

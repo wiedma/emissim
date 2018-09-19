@@ -156,7 +156,8 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		gaspedalkontrolle = f.gaspedalkontrolleGeben();
 		
 		//Erzeugung der Zeitlücke als 0.5 - 1 gleichverteilte Variable
-		zeitluecke = (Math.random() * 0.5) + 0.5;
+//		zeitluecke = (Math.random() * 0.5) + 0.5;
+		zeitluecke = 1.0;
 		
 		//Berechnung der minimalen gaspedalkontrolle
 		bnull = 0.2 * (gaspedalkontrolle + Physics.normalverteilung(0.5, 0.15));
@@ -216,7 +217,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		ax = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
 		
 		double bxGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
-		bx = ax + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit) * zeitluecke;
+		bx = ax + ((1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxGeschwindigkeit) * zeitluecke);
 		
 		double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
 		sdv = Math.pow((dx - ax)/cx, 2);
@@ -234,6 +235,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			writer.println("DV: " +  dv);
 			writer.println("AX: " + ax);
 			writer.println("BX: " + bx);
+			writer.println("Sicherheit: " + sicherheitsbeduerfnis);
 			writer.println("SDV: " + sdv);
 			writer.println("SDX: " + sdx);
 			writer.println("CLDV: " + cldv);
@@ -553,7 +555,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		double dxH, dvH;
 		try {
 			dxH = Math.abs(f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).entfernungGeben());
-			dvH = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).geschwindigkeitGeben();
+			dvH = f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).geschwindigkeitGeben() - f.geschwindigkeitGeben();
 			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).zielFahrzeug();
 			
 			//Bestimmung der Wiedemann-Parameter
@@ -661,7 +663,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		double dxH, dvH;
 		try {
 			dxH = Math.abs(f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).entfernungGeben());
-			dvH = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).geschwindigkeitGeben();
+			dvH = f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).geschwindigkeitGeben() - f.geschwindigkeitGeben();
 			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).zielFahrzeug();
 			
 			//Bestimmung der Wiedemann-Parameter
@@ -925,7 +927,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 		f.unfall();
 		f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().unfall();
-		System.out.println("UNFALL");
+		System.out.println("UNFALL " + id);
 		System.exit(0);
 	}
 	

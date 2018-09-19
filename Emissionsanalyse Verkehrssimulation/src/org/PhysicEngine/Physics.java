@@ -73,7 +73,9 @@ public final class Physics {
 		double x = u * p;
 		
 		//Lineare Transformation zu beliebig normalverteilten Zufallszahlen
-		return standartabweichung * x + erwartungswert;
+		double result = standartabweichung * x + erwartungswert;
+		
+		return result;
 	}
 
 }

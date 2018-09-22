@@ -9,6 +9,7 @@ import org.Verkehr.Hindernis;
 import org.Verkehr.HindernisRichtung;
 import org.Verkehr.LKW;
 import org.Verkehr.PKW;
+import org.main.Simulation;
 
 /**
  * Beschreibt das Verhalten von Fahrzeugen im einspurigen Verkehr nach Wiedemann [WI74] \n
@@ -154,10 +155,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		schaetzvermoegen = f.schaetzvermoegenGeben();
 		beschleunigungswille = f.beschleunigungswilleGeben();
 		gaspedalkontrolle = f.gaspedalkontrolleGeben();
-		
-		//Erzeugung der Zeitlücke als 0.5 - 1 gleichverteilte Variable
-//		zeitluecke = (Math.random() * 0.5) + 0.5;
-		zeitluecke = 1.0;
+		zeitluecke = f.zeitlueckeGeben();
 		
 		//Berechnung der minimalen gaspedalkontrolle
 		bnull = 0.2 * (gaspedalkontrolle + Physics.normalverteilung(0.5, 0.15));
@@ -231,19 +229,22 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		
 		if(writing) {
 			writer.println("------------------------------------------------------------------");
+			writer.println("Zeit: " + Simulation.zeitGeben());
 			writer.println("DX: " + dx);
 			writer.println("DV: " +  dv);
 			writer.println("AX: " + ax);
 			writer.println("BX: " + bx);
-			writer.println("Sicherheit: " + sicherheitsbeduerfnis);
-			writer.println("SDV: " + sdv);
-			writer.println("SDX: " + sdx);
-			writer.println("CLDV: " + cldv);
-			writer.println("OPDV: " + opdv);
-			writer.println("R: " + r);
+//			writer.println("Sicherheit: " + sicherheitsbeduerfnis);
+//			writer.println("SDV: " + sdv);
+//			writer.println("SDX: " + sdx);
+//			writer.println("CLDV: " + cldv);
+//			writer.println("OPDV: " + opdv);
+//			writer.println("R: " + r);
 			writer.println("Geschwindigkeit: " + f.geschwindigkeitGeben());
 			writer.println("Geschwindigkeit Vordermann: " + vordermann.geschwindigkeitGeben());
+			writer.println("ID Vordermann: " + vordermann.idGeben());
 			writer.println("POS: " + f.posGeben());
+			writer.println("Spur-Hash: " + f.spurGeben().hashCode());
 		}
 		
 		//Bestimme die anzuwendende Prozedur zur Beschleunigungsbestimmung
@@ -319,6 +320,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 				boolean spurwechsel = spurwechselEntscheidungLinks();
 				if(spurwechsel) {
 					spurwechselWunschLinks = 0;
+					spurwechselWunschRechts = 0;
 				}
 				return spurwechsel;
 			}
@@ -342,6 +344,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 				boolean spurwechsel = spurwechselEntscheidungRechts();
 				if(spurwechsel) {
 					spurwechselWunschRechts = 0;
+					spurwechselWunschLinks = 0;
 				}
 				return spurwechsel;
 			}
@@ -531,6 +534,10 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			dvV = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE_LINKS).geschwindigkeitGeben();
 			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.VORNE_LINKS).zielFahrzeug();
 			
+			if(writing) {
+				writer.println("ID Vorne Links: " + vordermann.idGeben());
+			}
+			
 			//Bestimmung der Wiedemann-Parameter
 			double axv = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
 			double bxvGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.VORNE_LINKS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
@@ -628,6 +635,10 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			dxV = f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).entfernungGeben();
 			dvV = f.geschwindigkeitGeben() - f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).geschwindigkeitGeben();
 			Fahrzeug vordermann = f.hindernisGeben(HindernisRichtung.VORNE_RECHTS).zielFahrzeug();
+			
+			if(writing) {
+				writer.println("ID Vorne Rechts: " + vordermann.idGeben());
+			}
 			
 			//Bestimmung der Wiedemann-Parameter
 			double axv = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
@@ -927,7 +938,6 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		}
 		f.unfall();
 		f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().unfall();
-		System.out.println("UNFALL " + id);
 		System.exit(0);
 	}
 	
@@ -987,6 +997,10 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 	
 	public double wunschgeschwindigkeitGeben() {
 		return wunschgeschwindigkeit;
+	}
+	
+	public int idGeben() {
+		return id;
 	}
 	
 }

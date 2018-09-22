@@ -120,13 +120,12 @@ public class Quelle extends Fahrspur {
 				//Setze ein Fahrzeug in den Rückstau
 				rueckstau[i] += 1;
 				letzteZeit[i] = Simulation.zeitGeben();
-				fahrzeugeErzeugt++;
 			}
 		}
 		
 		//Für jedes Fahrzeug im Rückstau
 		for(int i = 0; i < rueckstau.length; i++) {
-			if(rueckstau[i] > 0) {
+			if(rueckstau[i] > 0 && aktiv) {
 				//Generiere ein Fahrzeug
 				generiereFahrzeug(i);
 			}
@@ -208,6 +207,7 @@ public class Quelle extends Fahrspur {
 		//Nur ausführen, wenn Erzeugung erfolgreich ist
 		rueckstau[vorlauf] -= 1;
 		Simulation.fahrzeugHinzufuegen(fahrzeug);
+		fahrzeugeErzeugt++;
 		return true;
 	}
 	

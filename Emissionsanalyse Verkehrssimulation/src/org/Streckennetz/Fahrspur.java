@@ -212,6 +212,53 @@ public abstract class Fahrspur implements Datenelement {
 		}
 		//Entferne das Fahrzeug von dieser Spur
 		fahrzeugEntfernen(f);
+		
+		//Kontrolliere, ob der Platz mittlerweile von einem anderen Fahrzeug eingenommen wurde
+		Hindernis vorn = f.hindernisSuchen(HindernisRichtung.VORNE);
+		Hindernis hinten = f.hindernisSuchen(HindernisRichtung.HINTEN);
+		boolean zurueck = false;
+		try {
+			Fahrzeug vordermann = vorn.zielFahrzeug();
+			double dx = vorn.entfernungGeben();
+			double ax = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0)
+					+ 1 + 2 * f.sicherheitsbeduerfnisGeben();
+			double bxGeschwindigkeit = vorn.kollisionszeit() > 0 ?
+					f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bx = ax + ((1 + 7 * f.sicherheitsbeduerfnisGeben()) *
+					Math.sqrt(bxGeschwindigkeit) * f.zeitlueckeGeben());
+			if(dx < bx) {
+				zurueck = true;
+			}
+		} catch(Exception e) {}
+		
+		try {
+			Fahrzeug hintermann = hinten.zielFahrzeug();
+			double dx = Math.abs(hinten.entfernungGeben());
+			double ax = (hintermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0)
+					+ 1 + 2 * f.sicherheitsbeduerfnisGeben();
+			double bxGeschwindigkeit = hinten.kollisionszeit() > 0 ?
+					hintermann.geschwindigkeitGeben() : f.geschwindigkeitGeben();
+			double bx = ax + ((1 + 7 * f.sicherheitsbeduerfnisGeben()) *
+					Math.sqrt(bxGeschwindigkeit) * f.zeitlueckeGeben());
+			if(dx < bx) {
+				zurueck = true;
+			}
+		} catch(Exception e) {}
+		
+		//Wenn der Platz mittlerweile besetzt wurde
+		if(zurueck) {
+			//Mache den Spurwechsel rückgängig
+			if(links) {
+				linkeFahrspur.fahrzeugEntfernen(f);
+				fahrzeugHinzufuegen(f);
+				f.spurSetzen(this);
+			}
+			else {
+				rechteFahrspur.fahrzeugEntfernen(f);
+				fahrzeugHinzufuegen(f);
+				f.spurSetzen(this);
+			}
+		}
 	}
 	
 	@Override
@@ -304,12 +351,12 @@ public abstract class Fahrspur implements Datenelement {
 			//Wenn ein Hindernis in Sichtweite (1km) gefunden wurde
 			if(naechster != null && abstandNaechster <= 1000) {
 				//Wenn der Sucher kein Dummy war
-				if(!(sucher instanceof DummyFahrzeug)) {
-					//Nutze Symmetrie aus um Laufzeit zu sparen
-					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
-							sucher.geschwindigkeitGeben(), sucher, naechster, false, true);
-					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
-				}
+//				if(!(sucher instanceof DummyFahrzeug)) {
+//					//Nutze Symmetrie aus um Laufzeit zu sparen
+//					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
+//							sucher.geschwindigkeitGeben(), sucher, naechster, false, true);
+//					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
+//				}
 				//Sonst
 //				else {
 //					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
@@ -386,12 +433,12 @@ public abstract class Fahrspur implements Datenelement {
 			//Wenn ein Hindernis gefunden wurde, das in Sichtweite (1km) liegt
 			if(naechster != null && naechsterPos + entfernung <= 1000) {
 				//Wenn der Sucher kein Dummy war
-				if(!(sucher instanceof DummyFahrzeug)) {
-					//Nutze Symmetrie aus um Laufzeit zu sparen
-					Hindernis symmetrisch = new Hindernis(naechsterPos + entfernung,
-							sucher.geschwindigkeitGeben(), sucher, naechster, false, false);
-					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
-				}
+//				if(!(sucher instanceof DummyFahrzeug)) {
+//					//Nutze Symmetrie aus um Laufzeit zu sparen
+//					Hindernis symmetrisch = new Hindernis(naechsterPos + entfernung,
+//							sucher.geschwindigkeitGeben(), sucher, naechster, false, false);
+//					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
+//				}
 				//Sonst
 //				else {
 //					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
@@ -475,12 +522,12 @@ public abstract class Fahrspur implements Datenelement {
 			//Wenn ein Hindernis in Sichtweite (1km) gefunden wurde
 			if(naechster != null && abstandNaechster >= -1000) {
 				//Wenn der Sucher kein Dummy war
-				if(!(sucher instanceof DummyFahrzeug)) {
-					//Nutze Symmetrie aus um Laufzeit zu sparen
-					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
-							sucher.geschwindigkeitGeben(), sucher, naechster, true, true);
-					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
-				}
+//				if(!(sucher instanceof DummyFahrzeug)) {
+//					//Nutze Symmetrie aus um Laufzeit zu sparen
+//					Hindernis symmetrisch = new Hindernis(-abstandNaechster,
+//							sucher.geschwindigkeitGeben(), sucher, naechster, true, true);
+//					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
+//				}
 				//Sonst
 //				else {
 //					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das
@@ -557,12 +604,12 @@ public abstract class Fahrspur implements Datenelement {
 			//Wenn ein Hindernis gefunden wurde, das in Sichtweite (1km) liegt
 			if(naechster != null && (laenge - naechsterPos) + entfernung <= 1000) {
 				//Wenn der Sucher kein Dummy war
-				if(!(sucher instanceof DummyFahrzeug)) {
-					//Nutze Symmetrie aus um Laufzeit zu sparen
-					Hindernis symmetrisch = new Hindernis((laenge - naechsterPos) + entfernung,
-							sucher.geschwindigkeitGeben(), sucher, naechster, true, false);
-					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
-				}
+//				if(!(sucher instanceof DummyFahrzeug)) {
+//					//Nutze Symmetrie aus um Laufzeit zu sparen
+//					Hindernis symmetrisch = new Hindernis((laenge - naechsterPos) + entfernung,
+//							sucher.geschwindigkeitGeben(), sucher, naechster, true, false);
+//					naechster.hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
+//				}
 				//Sonst
 //				else {
 //					/*Erstelle ein symmetrisches Hindernis, bei dem die Referenzen auf das

@@ -3,6 +3,7 @@ import org.PhysicEngine.*;
 import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
 import org.Verhalten.Fahrverhalten;
+import org.Verhalten.FahrverhaltenWiedemann;
 
 public abstract class Fahrzeug {
 	
@@ -73,6 +74,11 @@ public abstract class Fahrzeug {
 	 */
 	protected double gaspedalkontrolle;
 	
+	/**Erweiterung des Wiedemann-Modells um den Faktor Zeitlücke zur reduzierung der gewünschten
+	 * Folgeabstände um höhere Verkehrsstärken erreichen zu können 
+	 */
+	protected double zeitluecke;
+	
 	
 	public Fahrzeug() {
 		double[] specs = generiereFahrzeugSpecs();
@@ -129,10 +135,14 @@ public abstract class Fahrzeug {
 			gaspedalkontrolle = Physics.normalverteilung(0.5, 0.15);
 		} while (gaspedalkontrolle < 0.05 || gaspedalkontrolle > 0.95);
 		
+		//Erzeugung der Zeitlücke als 0.5 - 1 gleichverteilte Variable
+//		zeitluecke = (Math.random() * 0.5) + 0.5;
+		zeitluecke = 1;
 	}
 	
-	/**Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen*/
-	public void zeitschritt() {
+	/**Bestimmt die Beschleunigung dieses Fahrzeuges für den nächsten Zeitschritt*/
+	public void beschleunigungBestimmen() {
+		
 		//Wenn ein Unfall passiert ist
 		if(unfall) {
 			//Bleibe stehen
@@ -141,7 +151,10 @@ public abstract class Fahrzeug {
 		
 		//Bestimme die neue Beschleunigung des Fahrzeuges
 		beschleunigung = verhalten.beschleunigungBestimmen();
-		
+	}
+	
+	/**Treffe eine Spurwechselentscheidung*/
+	public void spurwechselBestimmen() {
 		//Treffe eine Spurwechselentscheidung
 		boolean spurwechselLinks = false, spurwechselRechts = false;
 		
@@ -155,16 +168,20 @@ public abstract class Fahrzeug {
 			}	
 		}
 		
-		
-		//Neue Position
-		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
-		
 		if(spurwechselLinks) {
 			spur.spurwechsel(this, true);
 		}
 		else if(spurwechselRechts) {
 			spur.spurwechsel(this, false);
 		}
+	}
+	
+	/**Berechne die neue Position und Geschwindigkeit aus den momentanen Attributen*/
+	public void zeitschritt() {
+		
+		//Neue Position
+		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
+		
 		
 		//Emissionsdaten sammeln und speichern
 		co2sensor.schreibeDaten(emissionBerechnen());
@@ -186,14 +203,8 @@ public abstract class Fahrzeug {
 		this.geschwindigkeit = 0;
 		this.beschleunigung = 0;
 		unfall = true;
+		System.out.println("Unfall " + ((FahrverhaltenWiedemann) verhalten).idGeben());
 	}
-	
-//	/**Ändere die Geschwindigkeit des Fahrzeugs innerhalb einer Zeiteinheit*/
-//	public void beschleunige(double zielgeschwindigkeit) {
-//		//a = dv/dt
-//		beschleunigung = (geschwindigkeit-zielgeschwindigkeit)/Physics.DELTA_TIME;
-//	}
-	
 	
 	/**Berechne die CO₂-Emission des Fahrzeugs in dieser Zeiteinheit in kg*/
 	public double emissionBerechnen() {
@@ -226,9 +237,19 @@ public abstract class Fahrzeug {
 	public void alleHindernisseSuchen() {
 		if(hinVorne == null) {
 			hinVorne = hindernisSuchen(HindernisRichtung.VORNE);
+//			try {
+//				Hindernis symmetrisch = new Hindernis(-hinVorne.entfernungGeben(), geschwindigkeit,
+//						this, hinVorne.zielFahrzeug(), false, hinVorne.istGleicheFahrspur());
+//				hinVorne.zielFahrzeug().hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
+//			}catch(Exception e) {}
 		}
 		if(hinHinten == null) {
 			hinHinten = hindernisSuchen(HindernisRichtung.HINTEN);
+//			try {
+//				Hindernis symmetrisch = new Hindernis(Math.abs(hinHinten.entfernungGeben()), geschwindigkeit,
+//						this, hinHinten.zielFahrzeug(), true, hinHinten.istGleicheFahrspur());
+//				hinHinten.zielFahrzeug().hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
+//			}catch(Exception e) {}
 		}
 		if(hinVorneLinks == null) {
 			hinVorneLinks = hindernisSuchen(HindernisRichtung.VORNE_LINKS);
@@ -242,6 +263,12 @@ public abstract class Fahrzeug {
 		if(hinHintenRechts == null) {
 			hinHintenRechts = hindernisSuchen(HindernisRichtung.HINTEN_RECHTS);
 		}
+//		hinVorne = hindernisSuchen(HindernisRichtung.VORNE);
+//		hinHinten = hindernisSuchen(HindernisRichtung.HINTEN);
+//		hinVorneLinks = hindernisSuchen(HindernisRichtung.VORNE_LINKS);
+//		hinVorneRechts = hindernisSuchen(HindernisRichtung.VORNE_RECHTS);
+//		hinHintenLinks = hindernisSuchen(HindernisRichtung.HINTEN_LINKS);
+//		hinHintenRechts = hindernisSuchen(HindernisRichtung.HINTEN_RECHTS);
 	}
 	
 	/**Generiere zufällig die Spezifikationen des Fahrzeuges*/
@@ -312,6 +339,10 @@ public abstract class Fahrzeug {
 	public double gaspedalkontrolleGeben() {
 		return gaspedalkontrolle;
 	}
+	
+	public double zeitlueckeGeben() {
+		return zeitluecke;
+	}
 
 	public void sensorAktivieren() {
 		co2sensor.aktiviere();
@@ -348,6 +379,10 @@ public abstract class Fahrzeug {
 	
 	public void tempolimitAktualisieren(double tempolimitNeu) {
 		wunschgeschwindigkeit = verhalten.tempolimitAktualisieren(tempolimitNeu);
+	}
+	
+	public int idGeben() {
+		return ((FahrverhaltenWiedemann) verhalten).idGeben();
 	}
 //------------------------------------------------------------------------------------------------
 }

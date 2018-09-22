@@ -48,6 +48,12 @@ public class Netz {
 		for(Fahrzeug f : fahrzeuge) {
 			f.alleHindernisseSuchen();
 		}
+		for(Fahrzeug f : fahrzeuge) {
+			f.beschleunigungBestimmen();
+		}
+		for(Fahrzeug f : fahrzeuge) {
+			f.spurwechselBestimmen();
+		}
 		for(int i = fahrzeuge.size() - 1; i >= 0; i--) {
 			fahrzeuge.get(i).zeitschritt();
 		}

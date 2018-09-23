@@ -491,7 +491,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			
 			//Bestimmung der Wiedemann-Parameter
 			double axb = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
-			double bxbGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxbGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN).kollisionszeit() > 0) ? vordermann.geschwindigkeitGeben() : f.geschwindigkeitGeben();
 			double bxb = axb + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxbGeschwindigkeit) * zeitluecke;
 			
 			if(dxB < axb + bxb && wunschB - wunschgeschwindigkeit > (5.0)/3.6) {
@@ -567,7 +567,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			
 			//Bestimmung der Wiedemann-Parameter
 			double axh = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
-			double bxhGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxhGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN_LINKS).kollisionszeit() > 0) ? vordermann.geschwindigkeitGeben() : f.geschwindigkeitGeben();
 			double bxh = axh + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxhGeschwindigkeit) * zeitluecke;
 			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
 			double sdvh = Math.pow((dxH - axh)/cx, 2);
@@ -679,7 +679,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			
 			//Bestimmung der Wiedemann-Parameter
 			double axh = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
-			double bxhGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxhGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN_RECHTS).kollisionszeit() > 0) ? vordermann.geschwindigkeitGeben() : f.geschwindigkeitGeben();
 			double bxh = axh + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxhGeschwindigkeit) * zeitluecke;
 			double cx = 25 * (1 + sicherheitsbeduerfnis + schaetzvermoegen);
 			double sdvh = Math.pow((dxH - axh)/cx, 2);
@@ -722,7 +722,7 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 			
 			//Bestimmung der Wiedemann-Parameter
 			double axb = (vordermann.laengeGeben()/2.0) + (f.laengeGeben()/2.0) + 1 + 2 * sicherheitsbeduerfnis;
-			double bxbGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN).kollisionszeit() > 0) ? f.geschwindigkeitGeben() : vordermann.geschwindigkeitGeben();
+			double bxbGeschwindigkeit = (f.hindernisGeben(HindernisRichtung.HINTEN).kollisionszeit() > 0) ? vordermann.geschwindigkeitGeben() : f.geschwindigkeitGeben();
 			double bxb = axb + (1 + 7 * sicherheitsbeduerfnis) * Math.sqrt(bxbGeschwindigkeit) * zeitluecke;
 
 			if(dxB < axb + bxb && wunschB - wunschgeschwindigkeit > (5.0)/3.6) {

@@ -18,6 +18,8 @@ public final class Simulation {
 	private static double zeit;
 	/**Das Netz der Simulation*/
 	private static Netz netz;
+	/**Gibt an, ob die Simulation zum momentanen Zeitpunkt eine Messung durchführen soll*/
+	private static boolean messung = true;
 	/**Excel Workbook zum Ablegen der Daten*/
 	public static final XSSFWorkbook WORKBOOK = workbookErstellen();
 	/**Excel Worksheet zum Ablegen der CO2-Sensordaten*/
@@ -103,12 +105,12 @@ public final class Simulation {
 			wertZelle.setCellValue(momentanCO2Ausstoß);
 			XSSFCell verkehrsstaerkeZelle = currentCO2Row.createCell(2);
 			verkehrsstaerkeZelle.setCellValue(netz.gesamtVerkehrsstaerke());
-			//Setze den momentanen CO2-Ausstoß wieder zurück
-			momentanCO2Ausstoß = 0;
 			//Gehe zu neuer Reihe in der Tabelle über
 			currentCO2Row = CO2SHEET.createRow(currentCO2Row.getRowNum() + 1);
 		}
 		
+		//Setze den momentanen CO2-Ausstoß wieder zurück
+		momentanCO2Ausstoß = 0;
 		//Setze die static Variablen alle auf 0 und entferne alle restlichen Fahrzeuge aus der Simulation
 		zeit = 0.0;
 		netz.reset();
@@ -128,6 +130,13 @@ public final class Simulation {
 	
 	/**Sammelt die Emissionen in diesem Zeitschritt von allen aktiven Sensoren ein*/
 	public static void sammleCO2Daten(double daten) {
-		momentanCO2Ausstoß+=daten;
+		if(messung) {
+			momentanCO2Ausstoß+=daten;	
+		}
 	}
+	
+	public static void messungSetzten(boolean messungNeu) {
+		messung = messungNeu;
+	}
+	
 }

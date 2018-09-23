@@ -4,8 +4,8 @@ import org.Streckennetz.*;
 /**Main Klasse zum starten des Projekts*/
 public class Main {
 	
-	public static double tempolimit = 200;
-	public static int fahrzeugLimit = 1000;
+	public static double tempolimit = 100;
+	public static int fahrzeugLimit = 5000;
 
 	public static void main(String[] args) {
 		beispiel10km();
@@ -152,7 +152,7 @@ public class Main {
 		spuren[31] = autobahnEnde;
 		
 		Netz netz = new Netz(spuren);
-		autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(2000);
+		autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(8000);
 		netz.tempolimitSetzen(tempolimit);
 		
 		Simulation.netzSetzen(netz);
@@ -162,47 +162,59 @@ public class Main {
 		for(int j = 0; j < 7; j++) {
 			tempolimit = 200;
 			netz.tempolimitSetzen(tempolimit);
+			Simulation.messungSetzten(false);
+			double messzeit = 0;
 			for(int i = 0; i < 10; i++) {
-				while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+				while(messzeit == 0 || (Simulation.zeitGeben() - messzeit) < 3600) {
 					Simulation.zeitschritt();
-					if(Quelle.fahrzeugeErzeugt() >= fahrzeugLimit) {
-						autobahnBeginn.aktivSetzen(false);
+					if(Senke.anzahlFahrzeugeEntfernt() > 0 && messzeit == 0) {
+						messzeit = Simulation.zeitGeben();
+						Simulation.messungSetzten(true);
 					}
 					if(Simulation.zeitGeben() > 10000) {
 						Simulation.reset(false);
 					}
 				}
-				Simulation.reset(true);	
+				Simulation.reset(true);
+				System.out.println("Versuch abgeschlossen!");
 			}
 			
 			tempolimit = 120;
 			netz.tempolimitSetzen(tempolimit);
+			Simulation.messungSetzten(false);
+			messzeit = 0;
 			for(int i = 0; i < 10; i++) {
-				while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+				while(messzeit == 0 || (Simulation.zeitGeben() - messzeit) < 3600) {
 					Simulation.zeitschritt();
-					if(Quelle.fahrzeugeErzeugt() >= fahrzeugLimit) {
-						autobahnBeginn.aktivSetzen(false);
+					if(Senke.anzahlFahrzeugeEntfernt() > 0 && messzeit == 0) {
+						messzeit = Simulation.zeitGeben();
+						Simulation.messungSetzten(true);
 					}
 					if(Simulation.zeitGeben() > 10000) {
 						Simulation.reset(false);
 					}
 				}
 				Simulation.reset(true);	
+				System.out.println("Versuch abgeschlossen!");
 			}
 			
 			tempolimit = 100;
 			netz.tempolimitSetzen(tempolimit);
+			Simulation.messungSetzten(false);
+			messzeit = 0;
 			for(int i = 0; i < 10; i++) {
-				while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+				while(messzeit == 0 || (Simulation.zeitGeben() - messzeit) < 3600) {
 					Simulation.zeitschritt();
-					if(Quelle.fahrzeugeErzeugt() >= fahrzeugLimit) {
-						autobahnBeginn.aktivSetzen(false);
+					if(Senke.anzahlFahrzeugeEntfernt() > 0 && messzeit == 0) {
+						messzeit = Simulation.zeitGeben();
+						Simulation.messungSetzten(true);
 					}
 					if(Simulation.zeitGeben() > 10000) {
 						Simulation.reset(false);
 					}
 				}
 				Simulation.reset(true);	
+				System.out.println("Versuch abgeschlossen!");
 			}
 			
 			double verkehrsstaerke = autobahnBeginn.streckeGeben(0).verkehrsstaerkeGeben();

@@ -4,6 +4,7 @@ import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
 import org.Verhalten.Fahrverhalten;
 import org.Verhalten.FahrverhaltenWiedemann;
+import org.main.Simulation;
 
 public abstract class Fahrzeug {
 	
@@ -136,8 +137,8 @@ public abstract class Fahrzeug {
 		} while (gaspedalkontrolle < 0.05 || gaspedalkontrolle > 0.95);
 		
 		//Erzeugung der Zeitlücke als 0.5 - 1 gleichverteilte Variable
-//		zeitluecke = (Math.random() * 0.5) + 0.5;
-		zeitluecke = 1;
+		zeitluecke = (Math.random() * 0.5) + 0.5;
+//		zeitluecke = 1;
 	}
 	
 	/**Bestimmt die Beschleunigung dieses Fahrzeuges für den nächsten Zeitschritt*/
@@ -183,12 +184,13 @@ public abstract class Fahrzeug {
 		//Neue Position
 		pos = Physics.bewege(pos, geschwindigkeit, beschleunigung);
 		
+		//Neue Geschwindigkeit
+		geschwindigkeit = geschwindigkeit + (beschleunigung * Physics.DELTA_TIME);
+		//Neuer Gang
+		gang = schalten(geschwindigkeit);
 		
 		//Emissionsdaten sammeln und speichern
 		co2sensor.schreibeDaten(emissionBerechnen());
-		
-		//Neue Geschwindigkeit
-		geschwindigkeit = geschwindigkeit + (beschleunigung * Physics.DELTA_TIME);
 		
 		//Setze die Hindernisse wieder auf null
 		hinVorne = null;
@@ -205,6 +207,25 @@ public abstract class Fahrzeug {
 		this.beschleunigung = 0;
 		unfall = true;
 		System.out.println("Unfall " + ((FahrverhaltenWiedemann) verhalten).idGeben());
+	}
+	
+	//Wählt für eine gewisse Geschwindigkeit nach Faustregel einen passenden Gang
+	public int schalten(double geschwindigkeit) {
+		if(geschwindigkeit < (5.0/3.6)) {
+			return 1;
+		}
+		else if(geschwindigkeit < (25/3.6)) {
+			return 2;
+		}
+		else if(geschwindigkeit < (40/3.6)) {
+			return 3;
+		}
+		else if(geschwindigkeit < (50/3.6)) {
+			return 4;
+		}
+		else {
+			return 5;
+		}
 	}
 	
 	/**Berechne die CO₂-Emission des Fahrzeugs in dieser Zeiteinheit in kg*/

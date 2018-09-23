@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.Graphen.*;
 import org.Verhalten.*;
 import org.Verkehr.*;
+import org.main.Main;
 import org.main.Simulation;
 /**Quellen sind Fahrspuren ohne räumliche Ausdehnung, welche Fahrzeuge erzeugen*/
 public class Quelle extends Fahrspur {
@@ -125,7 +126,7 @@ public class Quelle extends Fahrspur {
 		
 		//Für jedes Fahrzeug im Rückstau
 		for(int i = 0; i < rueckstau.length; i++) {
-			if(rueckstau[i] > 0 && aktiv) {
+			if(rueckstau[i] > 0 && aktiv && fahrzeugeErzeugt < Main.fahrzeugLimit) {
 				//Generiere ein Fahrzeug
 				generiereFahrzeug(i);
 			}
@@ -275,6 +276,19 @@ public class Quelle extends Fahrspur {
 		this.maxGeschwindigkeit = maxGeschwindigkeit;
 		for(Vorlauf vor : vorlaeufe) {
 			vor.maxGeschwindigkeitSetzen(maxGeschwindigkeit);
+		}
+	}
+	
+	/**Setze die Quelle auf Simulationsbeginn zurück*/
+	@Override
+	public void reset() {
+		fahrzeuge = new ArrayList<Fahrzeug>();
+		fahrzeugeErzeugt = 0;
+		letzteZeit = new double[letzteZeit.length];
+		rueckstau = new int[rueckstau.length];
+		aktiv = true;
+		for(Vorlauf vor : vorlaeufe) {
+			vor.reset();
 		}
 	}
 }

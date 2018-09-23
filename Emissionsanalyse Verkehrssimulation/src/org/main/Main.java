@@ -4,7 +4,8 @@ import org.Streckennetz.*;
 /**Main Klasse zum starten des Projekts*/
 public class Main {
 	
-	public static final double tempolimit = 120;
+	public static double tempolimit = 200;
+	public static int fahrzeugLimit = 1000;
 
 	public static void main(String[] args) {
 		beispiel10km();
@@ -156,16 +157,62 @@ public class Main {
 		
 		Simulation.netzSetzen(netz);
 		
+		//Führe die Versuche durch
 		
-		while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
-			Simulation.zeitschritt();
-			System.out.println("GESAMT: " + Quelle.fahrzeugeErzeugt());
-			if(Quelle.fahrzeugeErzeugt() >= 5000) {
-				autobahnBeginn.aktivSetzen(false);
+		for(int j = 0; j < 7; j++) {
+			tempolimit = 200;
+			netz.tempolimitSetzen(tempolimit);
+			for(int i = 0; i < 10; i++) {
+				while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+					Simulation.zeitschritt();
+					if(Quelle.fahrzeugeErzeugt() >= fahrzeugLimit) {
+						autobahnBeginn.aktivSetzen(false);
+					}
+					if(Simulation.zeitGeben() > 10000) {
+						Simulation.reset(false);
+					}
+				}
+				Simulation.reset(true);	
 			}
+			
+			tempolimit = 120;
+			netz.tempolimitSetzen(tempolimit);
+			for(int i = 0; i < 10; i++) {
+				while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+					Simulation.zeitschritt();
+					if(Quelle.fahrzeugeErzeugt() >= fahrzeugLimit) {
+						autobahnBeginn.aktivSetzen(false);
+					}
+					if(Simulation.zeitGeben() > 10000) {
+						Simulation.reset(false);
+					}
+				}
+				Simulation.reset(true);	
+			}
+			
+			tempolimit = 100;
+			netz.tempolimitSetzen(tempolimit);
+			for(int i = 0; i < 10; i++) {
+				while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+					Simulation.zeitschritt();
+					if(Quelle.fahrzeugeErzeugt() >= fahrzeugLimit) {
+						autobahnBeginn.aktivSetzen(false);
+					}
+					if(Simulation.zeitGeben() > 10000) {
+						Simulation.reset(false);
+					}
+				}
+				Simulation.reset(true);	
+			}
+			
+			double verkehrsstaerke = autobahnBeginn.streckeGeben(0).verkehrsstaerkeGeben();
+			autobahnBeginn.streckeGeben(0).verkehrsstaerkeSetzen(verkehrsstaerke + 500);
 		}
 		
+			
 		Simulation.beenden();
+		
+		System.out.println("Fertig!");
 		
 	}
 

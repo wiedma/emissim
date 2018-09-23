@@ -327,6 +327,10 @@ public abstract class Fahrspur implements Datenelement {
 		}
 	}
 	
+	public void reset() {
+		fahrzeuge = new ArrayList<Fahrzeug>();
+	}
+	
 //Hinderniserkennung -----------------------------------------------------------------------------
 	/*TODO Hinderniserkennung komplett überarbeiten. Mehr mit Variablen arbeiten, Code reduzieren
 	 */

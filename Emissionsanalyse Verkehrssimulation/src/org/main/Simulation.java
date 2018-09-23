@@ -52,24 +52,8 @@ public final class Simulation {
 	
 	/**Führe einen Zeitschritt in der Simulation durch*/
 	public static void zeitschritt() {
-		long millis = System.currentTimeMillis();
-		System.out.println("Fahrzeuge: " + netz.anzahlFahrzeuge());
 		zeit = Math.round((zeit+Physics.DELTA_TIME)*10)/10.0;
 		netz.zeitschritt();
-		System.out.println("Dauer: " + (System.currentTimeMillis() - millis));
-		System.out.println("Zeit: " + zeit);
-		
-		//Schreibe die gesammelten Daten in der Excel-Tabelle
-		XSSFCell zeitZelle = currentCO2Row.createCell(0);
-		zeitZelle.setCellValue(zeit);
-		XSSFCell wertZelle = currentCO2Row.createCell(1);
-		wertZelle.setCellValue(momentanCO2Ausstoß);
-		XSSFCell anzahlZelle = currentCO2Row.createCell(2);
-		anzahlZelle.setCellValue(netz.anzahlFahrzeuge());
-		//Setze den momentanen CO2-Ausstoß wieder zurück
-		momentanCO2Ausstoß = 0;
-		//Gehe zu neuer Reihe in der Tabelle über
-		currentCO2Row = CO2SHEET.createRow(currentCO2Row.getRowNum() + 1);
 	}
 	
 	/**Füge der Simulation ein Fahrzeug hinzu*/
@@ -100,9 +84,6 @@ public final class Simulation {
 	/**Schreibt den gesammelten Datensatz auf die Festplatte*/
 	public static void beenden() {
 		try {
-			XSSFRow row = CO2SHEET.createRow(currentCO2Row.getRowNum());
-			row.createCell(0).setCellValue("Summe:");
-			row.createCell(1).setCellFormula("SUM($B$1:$B$" + currentCO2Row.getRowNum() + ")");
 			outputStream = new FileOutputStream(new File("output.xlsx"));
 			WORKBOOK.write(outputStream);
 			WORKBOOK.close();
@@ -113,15 +94,35 @@ public final class Simulation {
 		}
 	}
 	
+	public static void reset(boolean speichern) {
+		if(speichern) {
+			//Schreibe die gesammelten Daten in der Excel-Tabelle
+			XSSFCell tempoZelle = currentCO2Row.createCell(0);
+			tempoZelle.setCellValue(Main.tempolimit);
+			XSSFCell wertZelle = currentCO2Row.createCell(1);
+			wertZelle.setCellValue(momentanCO2Ausstoß);
+			XSSFCell verkehrsstaerkeZelle = currentCO2Row.createCell(2);
+			verkehrsstaerkeZelle.setCellValue(netz.gesamtVerkehrsstaerke());
+			//Setze den momentanen CO2-Ausstoß wieder zurück
+			momentanCO2Ausstoß = 0;
+			//Gehe zu neuer Reihe in der Tabelle über
+			currentCO2Row = CO2SHEET.createRow(currentCO2Row.getRowNum() + 1);
+		}
+		
+		//Setze die static Variablen alle auf 0 und entferne alle restlichen Fahrzeuge aus der Simulation
+		zeit = 0.0;
+		netz.reset();
+	}
+	
 	/**Mache das Set-Up für die Excel-Tabelle*/
 	private static void init() {
 		currentCO2Row = CO2SHEET.createRow(0);
 		XSSFCell beschriftungZeit = currentCO2Row.createCell(0);
-		beschriftungZeit.setCellValue("Zeit in s");
+		beschriftungZeit.setCellValue("Tempolimit in km/h");
 		XSSFCell beschriftungWert = currentCO2Row.createCell(1);
 		beschriftungWert.setCellValue("CO2-Emission in kg");
 		XSSFCell beschriftungAnzahl = currentCO2Row.createCell(2);
-		beschriftungAnzahl.setCellValue("Anzahl der Fahrzeuge");
+		beschriftungAnzahl.setCellValue("Verkehrsstärke in Fz/h");
 		currentCO2Row = CO2SHEET.createRow(1);
 	}
 	

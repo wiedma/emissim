@@ -146,6 +146,7 @@ public abstract class Fahrzeug {
 		//Wenn ein Unfall passiert ist
 		if(unfall) {
 			//Bleibe stehen
+			unfall();
 			return;
 		}
 		

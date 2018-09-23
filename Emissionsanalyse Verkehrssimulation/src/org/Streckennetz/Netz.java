@@ -6,7 +6,6 @@ public class Netz {
 	
 	/**Die Spuren aus denen das Netz besteht*/
 	private Fahrspur[] spuren;
-	@SuppressWarnings("unused")
 	/**Der Kürzeste Pfad von jeder Quelle zu jeder Senke*/
 	private Strecke[] strecken;
 	/**Alle Fahrzeuge, die sich im Netz befinden (Anzahl ändert sich at runtime)*/
@@ -68,11 +67,20 @@ public class Netz {
 		}
 	}
 	
-//	public void hindernisseBestimmen() {
-//		for(Fahrzeug f : fahrzeuge) {
-//			f.alleHindernisseSuchen();
-//		}
-//	}
+	public double gesamtVerkehrsstaerke() {
+		double gesamt = 0;
+		for(Strecke s : strecken) {
+			gesamt += s.verkehrsstaerkeGeben();
+		}
+		return gesamt;
+	}
+	
+	public void reset() {
+		this.fahrzeuge = new ArrayList<Fahrzeug>();
+		for(Fahrspur f : spuren) {
+			f.reset();
+		}
+	}
 	
 
 }

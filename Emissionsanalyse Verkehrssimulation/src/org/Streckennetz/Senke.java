@@ -1,5 +1,7 @@
 package org.Streckennetz;
 
+import java.util.ArrayList;
+
 import org.Verkehr.Fahrzeug;
 import org.Verkehr.Hindernis;
 import org.main.Simulation;
@@ -85,5 +87,13 @@ public class Senke extends Fahrspur{
 	/**Senken müssen beim Zeitschritt selbst nichts machen*/
 	public void zeitschritt() {
 		//Nichts tun
+	}
+	
+	@Override
+	public void reset() {
+		fahrzeuge = new ArrayList<Fahrzeug>();
+		entfernteFahrzeuge = 0;
+		letzteZeit = 0;
+		letzteGeschwindigkeit = 0;
 	}
 }

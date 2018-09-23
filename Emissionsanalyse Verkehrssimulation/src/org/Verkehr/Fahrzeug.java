@@ -4,7 +4,6 @@ import org.Streckennetz.Fahrspur;
 import org.Streckennetz.Strecke;
 import org.Verhalten.Fahrverhalten;
 import org.Verhalten.FahrverhaltenWiedemann;
-import org.main.Simulation;
 
 public abstract class Fahrzeug {
 	
@@ -162,10 +161,14 @@ public abstract class Fahrzeug {
 		
 		if(!spur.ueberholverbotGeben()) {
 			if(spur.hatLinkenNachbarn()) {
+				hinVorneLinks = hindernisSuchen(HindernisRichtung.VORNE_LINKS);
+				hinHintenLinks = hindernisSuchen(HindernisRichtung.HINTEN_LINKS);
 				spurwechselLinks = verhalten.spurwechselBestimmen(true);
 			}
 			
 			if(spur.hatRechtenNachbarn()) {
+				hinVorneRechts = hindernisSuchen(HindernisRichtung.VORNE_RECHTS);
+				hinHintenRechts = hindernisSuchen(HindernisRichtung.HINTEN_RECHTS);
 				spurwechselRechts = verhalten.spurwechselBestimmen(false);			
 			}	
 		}

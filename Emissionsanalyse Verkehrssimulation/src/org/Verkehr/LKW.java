@@ -29,7 +29,7 @@ public class LKW extends Fahrzeug {
 		double hoehe = Physics.normalverteilung(32, 6)/10;
 		
 		//Gewichtsverteilung nach eigener Abschätzung (Grenzwerte nach § 34 StVZO)
-		double masse = Physics.normalverteilung(30, 10);
+		double masse = Physics.normalverteilung(30, 10) * 1000;
 		
 		//Als Kraftstoff für LKW wird der LKW-Diesel verwendet, welcher die selbe DIN-Normen wie
 		//normaler Diesel erfüllt

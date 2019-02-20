@@ -262,19 +262,9 @@ public abstract class Fahrzeug {
 	public void alleHindernisseSuchen() {
 		if(hinVorne == null) {
 			hinVorne = hindernisSuchen(HindernisRichtung.VORNE);
-//			try {
-//				Hindernis symmetrisch = new Hindernis(-hinVorne.entfernungGeben(), geschwindigkeit,
-//						this, hinVorne.zielFahrzeug(), false, hinVorne.istGleicheFahrspur());
-//				hinVorne.zielFahrzeug().hindernisSetzen(symmetrisch, HindernisRichtung.HINTEN);
-//			}catch(Exception e) {}
 		}
 		if(hinHinten == null) {
 			hinHinten = hindernisSuchen(HindernisRichtung.HINTEN);
-//			try {
-//				Hindernis symmetrisch = new Hindernis(Math.abs(hinHinten.entfernungGeben()), geschwindigkeit,
-//						this, hinHinten.zielFahrzeug(), true, hinHinten.istGleicheFahrspur());
-//				hinHinten.zielFahrzeug().hindernisSetzen(symmetrisch, HindernisRichtung.VORNE);
-//			}catch(Exception e) {}
 		}
 		if(hinVorneLinks == null) {
 			hinVorneLinks = hindernisSuchen(HindernisRichtung.VORNE_LINKS);

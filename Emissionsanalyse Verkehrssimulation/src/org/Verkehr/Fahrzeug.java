@@ -39,6 +39,9 @@ public abstract class Fahrzeug {
 	/**CO2-Sensorobjekt des Fahrzeugs*/
 	protected CO2Sensor co2sensor;
 	
+	/**Geschwindigkeits-Messgerät des Fahrzeugs*/
+	protected GeschwindigkeitsSensor vSensor;
+	
 	/**Strecke, die diesem Fahrzeug zugewiesen wurde*/
 	protected Strecke strecke;
 	
@@ -115,6 +118,7 @@ public abstract class Fahrzeug {
 		//CO2-Sensorobjekt
 		if(!(this instanceof DummyFahrzeug)) {
 			co2sensor = new CO2Sensor();
+			vSensor = new GeschwindigkeitsSensor();
 		}
 		
 		unfall = false;	
@@ -371,6 +375,7 @@ public abstract class Fahrzeug {
 
 	public void sensorAktivieren() {
 		co2sensor.aktiviere();
+		vSensor.aktviere();
 	}
 	
 	public void hindernisSetzen(Hindernis hindernis, HindernisRichtung richtung) {
@@ -408,6 +413,10 @@ public abstract class Fahrzeug {
 	
 	public int idGeben() {
 		return ((FahrverhaltenWiedemann) verhalten).idGeben();
+	}
+	
+	public double mittlereGeschwindigkeitGeben() {
+		return vSensor.mittlereGeschwindigkeit();
 	}
 //------------------------------------------------------------------------------------------------
 }

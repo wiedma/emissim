@@ -11,7 +11,6 @@ public class CO2Sensor implements Sensor<Double>{
 		aktiv = false;
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 */

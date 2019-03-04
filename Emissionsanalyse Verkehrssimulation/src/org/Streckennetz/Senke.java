@@ -37,6 +37,8 @@ public class Senke extends Fahrspur{
 		//Speichere die Zeit des Entfernens und die Geschwindigkeit des Fahrzeugs
 		letzteZeit = Simulation.zeitGeben();
 		letzteGeschwindigkeit = fahrzeug.geschwindigkeitGeben();
+		//Speichere die mittlere Reisegeschwindigkeit des Fahrzeugs
+		Simulation.sammleGeschwindigkeitsDaten(fahrzeug.mittlereGeschwindigkeitGeben());
 		//Entferne das Fahrzeug aus dem Netz
 		Simulation.fahrzeugEntfernen(fahrzeug);
 		fahrzeug = null;

@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.util.ArrayList;
 
 /**Stellt alle Methoden zum steuern der Simulation bereit*/
 public final class Simulation {
@@ -34,6 +35,7 @@ public final class Simulation {
 	}
 	/**Sammelt den Ausstoß von C02 von allen aktiven Sensoren*/
 	private static double momentanCO2Ausstoß = 0;
+	private static ArrayList<Double> vMittelList = new ArrayList<Double>();
 	
 //Getter und Setter ------------------------------------------------------------------------------
 	/**Getter für die Simulationszeit*/
@@ -105,12 +107,20 @@ public final class Simulation {
 			wertZelle.setCellValue(momentanCO2Ausstoß);
 			XSSFCell verkehrsstaerkeZelle = currentCO2Row.createCell(2);
 			verkehrsstaerkeZelle.setCellValue(netz.gesamtVerkehrsstaerke());
+			XSSFCell geschwindigkeitsZelle = currentCO2Row.createCell(3);
+			double sum = 0;
+			for(double d : vMittelList) {
+				sum += d;
+			}
+			geschwindigkeitsZelle.setCellValue(sum/vMittelList.size());
 			//Gehe zu neuer Reihe in der Tabelle über
 			currentCO2Row = CO2SHEET.createRow(currentCO2Row.getRowNum() + 1);
 		}
 		
 		//Setze den momentanen CO2-Ausstoß wieder zurück
 		momentanCO2Ausstoß = 0;
+		//Setze die Liste der mittleren Geschwindigkeiten zurück
+		vMittelList = new ArrayList<Double>();
 		//Setze die static Variablen alle auf 0 und entferne alle restlichen Fahrzeuge aus der Simulation
 		zeit = 0.0;
 		netz.reset();
@@ -125,6 +135,8 @@ public final class Simulation {
 		beschriftungWert.setCellValue("CO2-Emission in kg");
 		XSSFCell beschriftungAnzahl = currentCO2Row.createCell(2);
 		beschriftungAnzahl.setCellValue("Verkehrsstärke in Fz/h");
+		XSSFCell beschriftungV = currentCO2Row.createCell(3);
+		beschriftungV.setCellValue("Mittlere Geschwindigkeit in m/s");
 		currentCO2Row = CO2SHEET.createRow(1);
 	}
 	
@@ -133,6 +145,10 @@ public final class Simulation {
 		if(messung) {
 			momentanCO2Ausstoß+=daten;	
 		}
+	}
+	
+	public static void sammleGeschwindigkeitsDaten(double daten) {
+		vMittelList.add(daten);
 	}
 	
 	public static void messungSetzten(boolean messungNeu) {

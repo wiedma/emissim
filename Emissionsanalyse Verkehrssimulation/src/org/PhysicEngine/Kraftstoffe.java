@@ -32,7 +32,7 @@ public enum Kraftstoffe {
 	Einheit: kg CO₂*/
 	public double verbrenne(double energie) {
 		double masse = (energie*Math.pow(10, -6))/heizwert;
-		double leerlaufvolumen = ((Math.random() * 0.7) + 0.8) * (Physics.DELTA_TIME/3.600);
+		double leerlaufvolumen = ((Math.random() * 0.7) + 0.8) * (Physics.DELTA_TIME/3600);
 		double volumen = (masse/dichte) + leerlaufvolumen;
 		double co2EmissionsMasse = co2Emission * volumen;
 		return co2EmissionsMasse;

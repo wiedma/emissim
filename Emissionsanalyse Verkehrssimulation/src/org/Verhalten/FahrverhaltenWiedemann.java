@@ -939,7 +939,6 @@ public class FahrverhaltenWiedemann extends Fahrverhalten {
 		f.unfall();
 		f.hindernisGeben(HindernisRichtung.VORNE).zielFahrzeug().unfall();
 		Simulation.reset(false);
-		System.exit(0);
 	}
 	
 	/**

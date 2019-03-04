@@ -25,7 +25,7 @@ public class Quelle extends Fahrspur {
 	/**Quellen können aktiviert/deaktiviert werden*/
 	private boolean aktiv = true;
 	/**Die Gesamtanzahl erzeugter Fahrzeuge*/
-	private static int fahrzeugeErzeugt;
+	private int fahrzeugeErzeugt;
 	
 	public Quelle(Fahrspur einfahrt, double lkwAnteil, double tempolimit){
 		//Rufe den Konstruktor der Oberklasse auf
@@ -104,7 +104,7 @@ public class Quelle extends Fahrspur {
 	}
 	
 	/**Gibt die Gesamtanzahl aller an dieser Quelle erzeugten Fahrzeuge*/
-	public static int fahrzeugeErzeugt() {
+	public int fahrzeugeErzeugt() {
 		return fahrzeugeErzeugt;
 	}
 	
@@ -126,7 +126,7 @@ public class Quelle extends Fahrspur {
 		
 		//Für jedes Fahrzeug im Rückstau
 		for(int i = 0; i < rueckstau.length; i++) {
-			if(rueckstau[i] > 0 && aktiv && fahrzeugeErzeugt < Main.fahrzeugLimit) {
+			if(rueckstau[i] > 0 && aktiv) {
 				//Generiere ein Fahrzeug
 				generiereFahrzeug(i);
 			}

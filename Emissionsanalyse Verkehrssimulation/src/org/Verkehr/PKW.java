@@ -39,7 +39,7 @@ public class PKW extends Fahrzeug {
 			kraftstoff = 1; //Diesel etwa 33.5% aller PKW
 		}
 		else {
-			kraftstoff = 0; //Benzin etwa 66.55% aller PKW
+			kraftstoff = 0; //Benzin etwa 66.5% aller PKW
 		}
 		
 		//Rollreibungszahl nach [BO98]

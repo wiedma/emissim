@@ -1,11 +1,16 @@
 package org.main;
 
+import org.GUI.ConfigFrame;
 import org.PhysicEngine.Physics;
 import org.Streckennetz.Netz;
+import org.Streckennetz.Senke;
 import org.Verkehr.Fahrzeug;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import javax.swing.JOptionPane;
+
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -53,6 +58,72 @@ public final class Simulation {
 		return currentCO2Row;
 	}
 //------------------------------------------------------------------------------------------------
+	
+	public static void simulationStartenZeit(int tempolimit, int verkehrsstaerke, int zeitlimit) {
+		Main.CONFIG_FRAME.deactivateButtons();
+		
+		//Netz setzen
+		netz.reset();
+		netz.tempolimitSetzen(tempolimit);
+		netz.gesamtVerkehrsstaerkeSetzen(verkehrsstaerke);
+		
+		//Simulation durchführen
+		double messzeit = 0;
+		messungSetzten(false);
+		while(messzeit == 0 || (zeit - messzeit) < zeitlimit) {
+			zeitschritt();
+			if(Senke.anzahlFahrzeugeEntfernt() > 0 && messzeit == 0) {
+				messzeit = zeit;
+				messungSetzten(true);
+			}
+			if(zeit > 10000) {
+				reset(false);
+			}
+			if(zeit < messzeit) {
+				messzeit = 0;
+				messungSetzten(false);
+			}
+			if(messzeit != 0) {
+				int progress = (int) (((zeit - messzeit + 0.0)/(zeitlimit+0.0)) * 100);
+				ConfigFrame.PROGRESS.setValue(progress);
+			}
+		}
+		
+		JOptionPane.showMessageDialog(Main.CONFIG_FRAME, "Es wurden " + (int) momentanCO2Ausstoß +
+				"kg Kohlenstoffdioxid ausgestoßen");
+		
+		Simulation.reset(true);
+		
+		Main.CONFIG_FRAME.activateButtons();
+	}
+	
+	public static void simulationStartenLeistung(int tempolimit, int verkehrsstaerke, int fahrzeugLimit) {
+		Main.CONFIG_FRAME.deactivateButtons();
+		
+		//Netz setzen
+		netz.reset();
+		netz.tempolimitSetzen(tempolimit);
+		netz.gesamtVerkehrsstaerkeSetzen(verkehrsstaerke);
+		
+		while(netz.anzahlFahrzeuge() > 0 || Senke.anzahlFahrzeugeEntfernt() == 0) {
+			Simulation.zeitschritt();
+			if(netz.gesamtFahrzeugeErzeugt() >= fahrzeugLimit) {
+				netz.quellenDektivieren();
+			}
+			if(Simulation.zeitGeben() > 10000) {
+				Simulation.reset(false);
+			}
+			int progress = (int) (((netz.gesamtFahrzeugeErzeugt() + 0.0)/(fahrzeugLimit + 0.0)) * 100);
+			ConfigFrame.PROGRESS.setValue(progress);
+		}
+		
+		JOptionPane.showMessageDialog(Main.CONFIG_FRAME, "Es wurden " + (int) momentanCO2Ausstoß +
+				"kg Kohlenstoffdioxid ausgestoßen");
+		
+		Simulation.reset(true);
+		
+		Main.CONFIG_FRAME.activateButtons();
+	}
 	
 	/**Führe einen Zeitschritt in der Simulation durch*/
 	public static void zeitschritt() {
@@ -102,7 +173,7 @@ public final class Simulation {
 		if(speichern) {
 			//Schreibe die gesammelten Daten in der Excel-Tabelle
 			XSSFCell tempoZelle = currentCO2Row.createCell(0);
-			tempoZelle.setCellValue(Main.tempolimit);
+			tempoZelle.setCellValue(netz.tempolimitGeben());
 			XSSFCell wertZelle = currentCO2Row.createCell(1);
 			wertZelle.setCellValue(momentanCO2Ausstoß);
 			XSSFCell verkehrsstaerkeZelle = currentCO2Row.createCell(2);

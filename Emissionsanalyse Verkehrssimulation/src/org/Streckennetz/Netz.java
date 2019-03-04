@@ -10,6 +10,8 @@ public class Netz {
 	private Strecke[] strecken;
 	/**Alle Fahrzeuge, die sich im Netz befinden (Anzahl ändert sich at runtime)*/
 	private ArrayList<Fahrzeug> fahrzeuge;
+	/**Das Tempolimit*/
+	private double tempolimit;
 	
 	public Netz(Fahrspur[] spuren) {
 		this.spuren = spuren;
@@ -62,9 +64,14 @@ public class Netz {
 	}
 	
 	public void tempolimitSetzen(double tempolimit) {
+		this.tempolimit = tempolimit;
 		for(Fahrspur spur : spuren) {
 			spur.maxGeschwindigkeitSetzen(tempolimit);
 		}
+	}
+	
+	public double tempolimitGeben() {
+		return this.tempolimit;
 	}
 	
 	public double gesamtVerkehrsstaerke() {
@@ -75,11 +82,37 @@ public class Netz {
 		return gesamt;
 	}
 	
+	public void gesamtVerkehrsstaerkeSetzen(double verkehrsstaerke) {
+		double q = verkehrsstaerke/(strecken.length);
+		for(Strecke s : strecken) {
+			s.verkehrsstaerkeSetzen(q);
+		}
+	}
+	
+	public int gesamtFahrzeugeErzeugt() {
+		int summe = 0;
+		for(Fahrspur f : spuren) {
+			if(f instanceof Quelle) {
+				summe += ((Quelle) f).fahrzeugeErzeugt();
+			}
+		}
+		return summe;
+	}
+	
+	public void quellenDektivieren() {
+		for(Fahrspur f : spuren) {
+			if(f instanceof Quelle) {
+				((Quelle) f).aktivSetzen(false);
+			}
+		}
+	}
+	
 	public void reset() {
 		this.fahrzeuge = new ArrayList<Fahrzeug>();
 		for(Fahrspur f : spuren) {
 			f.reset();
 		}
+		
 	}
 	
 

@@ -199,6 +199,9 @@ public abstract class Fahrzeug {
 		//Emissionsdaten sammeln und speichern
 		co2sensor.schreibeDaten(emissionBerechnen());
 		
+		//Geschwindigkeitsdaten Sammeln
+		vSensor.schreibeDaten(geschwindigkeit);
+		
 		//Setze die Hindernisse wieder auf null
 		hinVorne = null;
 		hinHinten = null;

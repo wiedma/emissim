@@ -183,7 +183,8 @@ public final class Simulation {
 			for(double d : vMittelList) {
 				sum += d;
 			}
-			geschwindigkeitsZelle.setCellValue(sum/vMittelList.size());
+			double vMittel = sum/vMittelList.size();
+			geschwindigkeitsZelle.setCellValue(vMittel);
 			//Gehe zu neuer Reihe in der Tabelle über
 			currentCO2Row = CO2SHEET.createRow(currentCO2Row.getRowNum() + 1);
 		}
